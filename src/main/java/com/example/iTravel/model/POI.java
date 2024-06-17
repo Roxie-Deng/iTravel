@@ -15,4 +15,5 @@ public class POI {
     private String category;
     private String location;
     private double rating;
+    private String imageUrl; // 新增字段
 }
