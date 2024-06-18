@@ -11,7 +11,7 @@ const RecommendationList = ({ recommendations }) => {
                         <img src={poi.imageUrl} alt={poi.name} className="poi-image" />
                         <h3>{poi.name}</h3>
                         <p>{poi.description}</p>
-                        <p><a href="#" className="details-link">(details)</a></p>
+                        <p><a href="#" className="details-link">Details</a></p>
                         <button>Save</button>
                     </div>
                 ))}

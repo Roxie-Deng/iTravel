@@ -23,7 +23,7 @@
 .recommendation-card a.details-link {
     color: #007bff;
     /* 蓝色链接色 */
-    text-decoration: none;
+    text-decoration: underline;
     /* 去掉下划线 */
     font-weight: bold;
     /* 加粗字体 */
