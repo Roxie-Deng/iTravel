@@ -15,5 +15,5 @@ public class TravelGuide {
     @Id
     private String id;
     private String destination;
-    private String content;
+    private String guide;
 }

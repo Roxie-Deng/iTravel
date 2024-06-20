@@ -34,7 +34,7 @@ public class TravelGuideService {
             e.printStackTrace();
             content = "Error generating content.";
         }
-        travelGuide.setContent(content);
+        travelGuide.setGuide(content);
         return repository.save(travelGuide);
     }
 
