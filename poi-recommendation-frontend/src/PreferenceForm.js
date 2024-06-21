@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import './PreferenceForm.css';
 
 const PreferenceForm = ({ onSubmit }) => {
+    const { destination } = useParams();
+    const navigate = useNavigate();
     const categories = [
         'Natural landscapes',
         'Historical landmarks',
@@ -13,33 +16,35 @@ const PreferenceForm = ({ onSubmit }) => {
         new Array(categories.length).fill(false)
     );
 
+    useEffect(() => {
+        console.log("Received destination:", destination);
+    }, [destination]);
+
     const handleCheckboxChange = (position) => {
         const updatedCheckedState = checkedState.map((item, index) =>
             index === position ? !item : item
         );
-
         setCheckedState(updatedCheckedState);
-        console.log("Updated preferences:", updatedCheckedState);
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         const selectedCategories = categories.filter((_, index) => checkedState[index]);
-        console.log("Submitted preferences:", selectedCategories);
-        onSubmit({ visit: selectedCategories });
+        onSubmit(destination, { visit: selectedCategories });
+        navigate('/recommendations');
     };
 
     return (
         <form onSubmit={handleSubmit}>
             <div className="section">
-                <h2>I want to visit:</h2>
+                <h2>Choose your interests for {destination}</h2>
+                <h3>I want to visit:</h3>
                 <p>Tick the checkboxes based on your interests</p>
                 <div className="checkbox-group">
                     {categories.map((category, index) => (
                         <label key={index}>
                             <input
                                 type="checkbox"
-                                value={category}
                                 checked={checkedState[index]}
                                 onChange={() => handleCheckboxChange(index)}
                             />
@@ -48,7 +53,6 @@ const PreferenceForm = ({ onSubmit }) => {
                     ))}
                 </div>
             </div>
-
             <button type="submit">Submit</button>
         </form>
     );
