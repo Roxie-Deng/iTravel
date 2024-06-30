@@ -1,4 +1,4 @@
-package com.example.iTravel.travelguide.model;
+package com.example.iTravel.model;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

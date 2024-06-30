@@ -1,11 +1,10 @@
-package com.example.iTravel.travelguide.service;
+package com.example.iTravel.service;
 
-import com.example.iTravel.travelguide.model.TravelGuide;
-import com.example.iTravel.travelguide.repository.TravelGuideRepository;
+import com.example.iTravel.model.TravelGuide;
+import com.example.iTravel.repository.TravelGuideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -14,27 +13,16 @@ import java.util.List;
  */
 @Service
 public class TravelGuideService {
+
     @Autowired
     private TravelGuideRepository repository;
 
-    @Autowired
-    private ApiService apiService;
-
     /**
      * Saves a new travel guide to the database.
-     * Uses ApiService to generate content for the guide based on its destination.
      * @param travelGuide The TravelGuide entity to be saved.
      * @return The saved TravelGuide entity.
      */
     public TravelGuide saveTravelGuide(TravelGuide travelGuide) {
-        String content;
-        try {
-            content = apiService.generateTravelGuideContent(travelGuide.getDestination());
-        } catch (IOException e) {
-            e.printStackTrace();
-            content = "Error generating content.";
-        }
-        travelGuide.setGuide(content);
         return repository.save(travelGuide);
     }
 

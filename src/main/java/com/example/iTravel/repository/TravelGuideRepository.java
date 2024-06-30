@@ -1,8 +1,10 @@
-package com.example.iTravel.travelguide.repository;
+package com.example.iTravel.repository;
 
-import com.example.iTravel.travelguide.model.TravelGuide;
+import com.example.iTravel.model.TravelGuide;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * Repository interface for accessing TravelGuide data from MongoDB.
@@ -11,4 +13,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TravelGuideRepository extends MongoRepository<TravelGuide, String> {
+    //List<TravelGuide> findByTitle(String title);//迭代功能：用户查询
 }
