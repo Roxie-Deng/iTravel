@@ -1,0 +1,115 @@
+# import os
+# import time
+# import random
+# import pandas as pd
+# from selenium import webdriver
+# from selenium.webdriver.chrome.service import Service
+# from selenium.webdriver.chrome.options import Options
+# from selenium.webdriver.common.by import By
+# from webdriver_manager.chrome import ChromeDriverManager
+# from flask import Flask, request, jsonify
+#
+# app = Flask(__name__)
+#
+# # 选择随机User-Agent
+# def select_random_user_agent():
+#     user_agents = [
+#         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
+#         "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36",
+#         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36",
+#         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
+#         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36",
+#         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36",
+#     ]
+#     return random.choice(user_agents)
+#
+# # 初始化Chrome浏览器
+# def init_browser():
+#     user_agent = select_random_user_agent()
+#     chrome_options = Options()
+#     chrome_options.add_argument(f"user-agent={user_agent}")
+#     chrome_options.add_argument("--disable-gpu")
+#     chrome_options.add_argument("--start-maximized")
+#     chrome_options.add_argument("--disable-notifications")
+#
+#     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+#     return driver
+#
+# # 获取图片URL
+# def fetch_image_urls(query, max_links_to_fetch, wd, min_sleep=1, max_sleep=3):
+#     def scroll_to_end(wd):
+#         wd.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+#         time.sleep(random.uniform(min_sleep, max_sleep))
+#
+#     # 构建谷歌查询
+#     search_url = "https://www.google.com/search?safe=off&site=&tbm=isch&source=hp&q={q}&oq={q}&gs_l=img"
+#     wd.get(search_url.format(q=query))
+#
+#     image_urls = set()
+#     image_count = 0
+#     results_start = 0
+#
+#     while image_count < max_links_to_fetch:
+#         scroll_to_end(wd)
+#
+#         # 获取所有缩略图结果
+#         thumbnail_results = wd.find_elements(By.CSS_SELECTOR, "img.YQ4gaf")
+#         number_results = len(thumbnail_results)
+#         print(f"Found {number_results} thumbnail results for query '{query}'.")
+#
+#         for img in thumbnail_results[results_start:number_results]:
+#             try:
+#                 img.click()
+#                 time.sleep(random.uniform(min_sleep, max_sleep))
+#             except Exception as e:
+#                 print(f"Error clicking thumbnail: {e}")
+#                 continue
+#
+#             # 提取图片URL
+#             actual_images = wd.find_elements(By.CSS_SELECTOR, "img.sFlh5c.pT0Scc.iPVvYb")
+#             actual_images_count = len(actual_images)
+#             print(f"Found {actual_images_count} actual images after clicking thumbnail.")
+#
+#             if actual_images_count == 0:
+#                 print("No actual images found. Continuing to next thumbnail.")
+#                 continue
+#
+#             for actual_image in actual_images:
+#                 try:
+#                     src = actual_image.get_attribute('src')
+#                     if src and 'http' in src:
+#                         image_urls.add(src)
+#                 except Exception as e:
+#                     print(f"Error extracting image URL: {e}")
+#                     continue
+#
+#             image_count = len(image_urls)
+#
+#             if len(image_urls) >= max_links_to_fetch:
+#                 break
+#
+#         results_start = len(thumbnail_results)
+#
+#     if image_count == 0:
+#         raise Exception(f"No images found for query '{query}'.")
+#
+#     return image_urls
+#
+# @app.route('/get_image', methods=['POST'])
+# def get_image():
+#     try:
+#         query = request.json['query']
+#         driver = init_browser()
+#         image_urls = fetch_image_urls(query, 1, driver)
+#         driver.quit()
+#         if image_urls:
+#             return jsonify({"image_url": list(image_urls)[0]})
+#         else:
+#             return jsonify({"error": "No images found"}), 404
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+#
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=5000)
+#
+#
