@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate,useLocation } from 'react-router-dom';  // Removed useParams
+import { useNavigate, useLocation } from 'react-router-dom'; // Removed useParams
 import './PreferenceForm.css';
 
-const PreferenceForm = ({ onSubmit}) => {  // Accept destination as a prop
+const PreferenceForm = ({ onSubmit }) => { // Accept destination as a prop
     const location = useLocation();
     const { destination } = location.state || {}; // 获取传递的 destination
     const navigate = useNavigate();
@@ -10,7 +10,6 @@ const PreferenceForm = ({ onSubmit}) => {  // Accept destination as a prop
         'Natural landscapes',
         'Historical landmarks',
         'Modern architecture',
-        'Cultural sites'
     ];
 
     const [checkedState, setCheckedState] = useState(new Array(categories.length).fill(false));
@@ -36,19 +35,24 @@ const PreferenceForm = ({ onSubmit}) => {  // Accept destination as a prop
     return (
         <form onSubmit={handleSubmit}>
             <div className="section">
+                <br></br>
+                <br></br>
+                <br></br>
                 <h2>Choose your interests for {destination}</h2>
                 <h3>I want to visit:</h3>
-                <p>Tick the checkboxes based on your interests</p>
+                {/* <p>Tick the checkboxes based on your interests</p> */}
                 <div className="checkbox-group">
                     {categories.map((category, index) => (
-                        <label key={index}>
-                            <input
-                                type="checkbox"
-                                checked={checkedState[index]}
-                                onChange={() => handleCheckboxChange(index)}
-                            />
-                            {category}
-                        </label>
+                        <div key={index} className="category-box">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={checkedState[index]}
+                                    onChange={() => handleCheckboxChange(index)}
+                                />
+                                {category}
+                            </label>
+                        </div>
                     ))}
                 </div>
             </div>

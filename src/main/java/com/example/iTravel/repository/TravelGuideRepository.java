@@ -15,3 +15,4 @@ import java.util.List;
 public interface TravelGuideRepository extends MongoRepository<TravelGuide, String> {
     //List<TravelGuide> findByTitle(String title);//迭代功能：用户查询
 }
+

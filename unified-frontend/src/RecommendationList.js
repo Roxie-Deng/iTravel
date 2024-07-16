@@ -15,7 +15,16 @@ const RecommendationList = ({ recommendations }) => {
                         />
                         <h3>{poi.name}</h3>
                         <p>{poi.description}</p>
-                        <p><a href={`/details/${encodeURIComponent(poi.name)}`} className="details-link">Details</a></p>
+                        <p>
+                            <a
+                                href={`https://www.google.com/search?q=${encodeURIComponent(poi.name)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="details-link"
+                            >
+                                Details
+                            </a>
+                        </p>
                         <button>Save</button>
                     </div>
                 ))}

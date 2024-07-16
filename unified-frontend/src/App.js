@@ -4,14 +4,17 @@ import PreferenceForm from './PreferenceForm';
 import RecommendationList from './RecommendationList';
 import HomePage from './HomePage';
 import GuidePage from './GuidePage';
+import LoadingSpinner from './LoadingSpinner'; // 导入加载动画组件
 import './App.css';
 
 const App = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [guide, setGuide] = useState('');
   const [loading, setLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false); // 添加图片加载状态
 
   const fetchImageUrl = async (query) => {
+    setImageLoading(true); // 开始图片加载
     try {
       const response = await fetch('http://localhost:5000/get_image', {
         method: 'POST',
@@ -28,9 +31,10 @@ const App = () => {
     } catch (error) {
       console.error('Error fetching image URL:', error);
       return 'https://via.placeholder.com/150';
+    } finally {
+      setImageLoading(false); // 结束图片加载
     }
   };
-
 
   const parseRecommendations = async (text) => {
     const recommendations = [];
@@ -171,9 +175,9 @@ Be realistic, espeacially for one (or two)-day trip. Only include the itinerary 
         </nav>
         <Routes>
           <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
-          <Route path="/guide" element={loading ? <div className="loading-spinner"></div> : <GuidePage guide={guide} />} />
+          <Route path="/guide" element={loading ? <LoadingSpinner /> : <GuidePage guide={guide} />} />
           <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
-          <Route path="/recommendations" element={loading ? <div className="loading-spinner"></div> : <RecommendationList recommendations={recommendations} />} />
+          <Route path="/recommendations" element={loading || imageLoading ? <LoadingSpinner /> : <RecommendationList recommendations={recommendations} />} />
         </Routes>
       </div>
     </Router>
