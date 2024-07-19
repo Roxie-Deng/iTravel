@@ -15,7 +15,7 @@ const HomePage = ({ onSubmit }) => {
 
   return (
     <div className="homepage-container">
-      <h1 className="homepage-title">Travel Planner</h1>
+      <h1 className="homepage-title">Where to go?</h1>
       <form onSubmit={handleGuideSubmit} className="homepage-form">
         <div className="homepage-form-group">
           <input
