@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**纯用来TEST（Postman）*/
+/**这个类纯用来TEST而已*/
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController

@@ -4,12 +4,20 @@ import PreferenceForm from './PreferenceForm';
 import RecommendationList from './RecommendationList';
 import HomePage from './HomePage';
 import GuidePage from './GuidePage';
+import LoginPage from './LoginPage';
+import SignupPage from './SignupPage';
 import './App.css';
 
 const App = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [guide, setGuide] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(localStorage.getItem('token') !== null);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setLoggedIn(false);
+  };
 
   const fetchImageUrl = async (query) => {
     try {
@@ -168,12 +176,17 @@ Be realistic, espeacially for one (or two)-day trip. Only include the itinerary 
           <Link to="/">Home</Link>
           <Link to="/guide">Guide</Link>
           <Link to="/preferences">Preferences</Link>
+          <Link to="/login">Login</Link>
+          <Link to="/signup">Signup</Link>
+          {loggedIn && <button onClick={handleLogout}>Logout</button>}
         </nav>
         <Routes>
           <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
           <Route path="/guide" element={loading ? <div className="loading-spinner"></div> : <GuidePage guide={guide} />} />
           <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
           <Route path="/recommendations" element={loading ? <div className="loading-spinner"></div> : <RecommendationList recommendations={recommendations} />} />
+          <Route path="/login" element={<LoginPage onLogin={() => setLoggedIn(true)} />} />
+          <Route path="/signup" element={<SignupPage />} />
         </Routes>
       </div>
     </Router>
