@@ -1,27 +1,36 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './LoginPage.css'; // 确保包含你的样式
 
 const LoginPage = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://localhost:8080/api/auth/signin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (response.ok) {
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+      });
       const data = await response.json();
-      localStorage.setItem('token', data.token);
-      onLogin();
-    } else {
-      console.error('Login failed');
+
+      if (response.ok) {
+        // 存储 token 或其他必要的用户信息
+        localStorage.setItem('token', data.token);
+        // 重定向到首页
+        navigate('/');
+      } else {
+        setError(data.message || 'Login failed');
+      }
+    } catch (error) {
+      setError('Login failed');
     }
   };
 
