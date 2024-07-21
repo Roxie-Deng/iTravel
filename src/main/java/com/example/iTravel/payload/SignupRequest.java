@@ -18,7 +18,7 @@ public class SignupRequest {
     @Email
     private String email;
 
-    private Set<String> roles; // Lombok will automatically generate getter and setter for this
+    private Set<String> roles;
 
     @NotBlank
     @Size(min = 6, max = 40)
