@@ -33,4 +33,14 @@ public class TravelGuideService {
     public List<TravelGuide> getAllTravelGuides() {
         return repository.findAll();
     }
+
+    /**
+     * Retrieves a travel guide by destination and time.
+     * @param destination The destination of the travel guide.
+     * @param time The time of the travel guide.
+     * @return The TravelGuide entity.
+     */
+    public TravelGuide getGuideByDestinationAndTime(String destination, String time) {
+        return repository.findByDestinationAndTime(destination, time).orElse(null);
+    }
 }
