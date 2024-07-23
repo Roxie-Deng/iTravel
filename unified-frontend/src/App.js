@@ -21,6 +21,8 @@
 //   const [guide, setGuide] = useState('');
 //   const [loading, setLoading] = useState(false);
 //   const [imageLoading, setImageLoading] = useState(false);
+//   const [currentDestination, setCurrentDestination] = useState('');
+//   const [currentPreferences, setCurrentPreferences] = useState([]);
 
 //   const generateCacheKey = (type, destination, bodyContent) => {
 //     return `${type}:${destination.toUpperCase()}:${JSON.stringify(bodyContent)}`;
@@ -175,7 +177,13 @@
 //   };
 
 //   const handleSubmit = async (destination, preferences) => {
+//     if (!destination) {
+//       console.error('Destination is required');
+//       return;
+//     }
 //     const query = preferences.visit.join(', ');
+//     setCurrentDestination(destination);
+//     setCurrentPreferences(preferences);
 //     await fetchContentFromBackend(destination.toUpperCase(), 'recommendations', {
 //       model: 'kimi',
 //       messages: [{
@@ -187,15 +195,19 @@
 //     });
 //   };
 
-// //推荐更多景点
-//   const fetchMoreRecommendations = async (destination, preferences) => {
+//   //推荐更多景点
+//   const fetchMoreRecommendations = async () => {
+//     if (!currentDestination) {
+//       console.error('Current destination is required');
+//       return;
+//     }
 //     setLoading(true);
-//     const query = preferences.visit.join(', ');
-//     await fetchContentFromBackend(destination, 'recommendations', {
+//     const query = currentPreferences.visit.join(', ');
+//     await fetchContentFromBackend(currentDestination, 'recommendations', {
 //       model: 'kimi',
 //       messages: [{
 //         role: 'user',
-//         content: `Recommend 3 other points of interest in ${destination.toUpperCase()} for these categories: ${query}.`
+//         content: `Recommend 3 other points of interest in ${currentDestination.toUpperCase()} for these categories: ${query}. Make sure the recommendations are different from any previously provided.`
 //       }],
 //       use_search: false,
 //       stream: false
@@ -217,7 +229,7 @@
 //           <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
 //           <Route path="/guide" element={loading ? <LoadingSpinner /> : <GuidePage guide={guide} />} />
 //           <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
-//           <Route path="/recommendations" element={loading || imageLoading ? <LoadingSpinner /> : <RecommendationList recommendations={recommendations} />} />
+//           <Route path="/recommendations" element={loading || imageLoading ? <LoadingSpinner /> : <RecommendationList recommendations={recommendations} onFetchMore={fetchMoreRecommendations} />} />
 //         </Routes>
 //       </div>
 //     </Router>
@@ -225,6 +237,7 @@
 // };
 
 // export default App;
+
 
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
@@ -249,8 +262,9 @@ const App = () => {
   const [guide, setGuide] = useState('');
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
-  const [currentDestination, setCurrentDestination] = useState('');
-  const [currentPreferences, setCurrentPreferences] = useState([]);
+  const [conversation, setConversation] = useState([]); // 保存对话上下文
+  const [currentDestination, setCurrentDestination] = useState(''); // 保存当前的destination
+  const [preferences, setPreferences] = useState({ visit: [] }); // 保存当前的preferences
 
   const generateCacheKey = (type, destination, bodyContent) => {
     return `${type}:${destination.toUpperCase()}:${JSON.stringify(bodyContent)}`;
@@ -376,6 +390,14 @@ const App = () => {
         setGuide(parsedGuide);
         await localforage.setItem(cacheKey, parsedGuide);
       }
+
+      // 保存对话上下文
+      setConversation(prevConversation => [
+        ...prevConversation,
+        ...bodyContent.messages,
+        { role: 'assistant', content: data.choices[0].message.content }
+      ]);
+
       setLoading(false);
     } catch (error) {
       console.error(`Failed to fetch ${type}:`, error);
@@ -384,6 +406,8 @@ const App = () => {
   };
 
   const handleGuideSubmit = async (destination, days) => {
+    setCurrentDestination(destination);
+    setConversation([]); // 清空之前的对话上下文
     await fetchContentFromBackend(destination.toUpperCase(), 'guide', {
       model: 'kimi',
       messages: [{
@@ -397,7 +421,7 @@ const App = () => {
   - Evening: [Activity]
 
 Continue this format for each subsequent day.
-Be realistic, espeacially for one (or two)-day trip. Only include the itinerary details and activities without any additional commentary (eg."Certainly! Here is...").`
+Be realistic, especially for one (or two)-day trip. Only include the itinerary details and activities without any additional commentary (eg."Certainly! Here is...").`
       }],
       use_search: false,
       stream: false
@@ -405,13 +429,10 @@ Be realistic, espeacially for one (or two)-day trip. Only include the itinerary 
   };
 
   const handleSubmit = async (destination, preferences) => {
-    if (!destination) {
-      console.error('Destination is required');
-      return;
-    }
-    const query = preferences.visit.join(', ');
     setCurrentDestination(destination);
-    setCurrentPreferences(preferences);
+    setPreferences(preferences);
+    setConversation([]); // 清空之前的对话上下文
+    const query = preferences.visit.join(', ');
     await fetchContentFromBackend(destination.toUpperCase(), 'recommendations', {
       model: 'kimi',
       messages: [{
@@ -423,20 +444,16 @@ Be realistic, espeacially for one (or two)-day trip. Only include the itinerary 
     });
   };
 
-  //推荐更多景点
   const fetchMoreRecommendations = async () => {
-    if (!currentDestination) {
-      console.error('Current destination is required');
-      return;
-    }
     setLoading(true);
-    const query = currentPreferences.visit.join(', ');
+    const query = preferences.visit.join(', ');
+    const newMessage = {
+      role: 'user',
+      content: `Recommend 3 other points of interest in ${currentDestination.toUpperCase()} for these categories: ${query}. Make sure the recommendations are different from any previously provided.`
+    };
     await fetchContentFromBackend(currentDestination, 'recommendations', {
       model: 'kimi',
-      messages: [{
-        role: 'user',
-        content: `Recommend 3 other points of interest in ${currentDestination.toUpperCase()} for these categories: ${query}. Make sure the recommendations are different from any previously provided.`
-      }],
+      messages: [...conversation, newMessage],
       use_search: false,
       stream: false
     });
@@ -457,7 +474,13 @@ Be realistic, espeacially for one (or two)-day trip. Only include the itinerary 
           <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
           <Route path="/guide" element={loading ? <LoadingSpinner /> : <GuidePage guide={guide} />} />
           <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
-          <Route path="/recommendations" element={loading || imageLoading ? <LoadingSpinner /> : <RecommendationList recommendations={recommendations} onFetchMore={fetchMoreRecommendations} />} />
+          <Route path="/recommendations" element={
+            loading || imageLoading ? <LoadingSpinner /> :
+              <RecommendationList
+                recommendations={recommendations}
+                onFetchMoreRecommendations={fetchMoreRecommendations}
+              />
+          } />
         </Routes>
       </div>
     </Router>

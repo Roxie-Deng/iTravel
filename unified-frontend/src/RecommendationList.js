@@ -1,7 +1,7 @@
 // import React from 'react';
 // import './RecommendationList.css';
 
-// const RecommendationList = ({ recommendations }) => {
+// const RecommendationList = ({ recommendations, onFetchMore }) => {
 //     return (
 //         <div className="recommendation-list">
 //             <h2>Recommendations</h2>
@@ -29,16 +29,19 @@
 //                     </div>
 //                 ))}
 //             </div>
+//             <button className="change-button" onClick={onFetchMore}>Change</button>
 //         </div>
 //     );
 // };
 
 // export default RecommendationList;
 
+
+
 import React from 'react';
 import './RecommendationList.css';
 
-const RecommendationList = ({ recommendations, onFetchMore }) => {
+const RecommendationList = ({ recommendations, onFetchMoreRecommendations }) => {
     return (
         <div className="recommendation-list">
             <h2>Recommendations</h2>
@@ -66,7 +69,9 @@ const RecommendationList = ({ recommendations, onFetchMore }) => {
                     </div>
                 ))}
             </div>
-            <button className="change-button" onClick={onFetchMore}>Change</button>
+            <button className="change-button" onClick={onFetchMoreRecommendations}>
+                Change
+            </button>
         </div>
     );
 };
