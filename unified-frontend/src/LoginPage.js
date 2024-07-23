@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import './LoginPage.css'; // 确保包含你的样式
+import { useAuth } from './AuthContext';
+import './LoginPage.css'; 
 
-const LoginPage = ({ onLogin }) => {
+const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,6 +26,7 @@ const LoginPage = ({ onLogin }) => {
       if (response.ok) {
         // 存储 token 或其他必要的用户信息
         localStorage.setItem('token', data.token);
+        login({ username: data.username });  // Use the login function
         // 重定向到首页
         navigate('/');
       } else {
@@ -58,8 +61,10 @@ const LoginPage = ({ onLogin }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoComplete="current-password"
           />
         </div>
+        {error && <div style={{ color: 'red' }}>{error}</div>}
         <div className="login-actions">
           <button type="button">Forget password</button>
           <button type="submit">Login</button>

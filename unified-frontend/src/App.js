@@ -6,19 +6,22 @@ import HomePage from './HomePage';
 import GuidePage from './GuidePage';
 import LoginPage from './LoginPage';
 import SignupPage from './SignupPage';
+import Navigation from './Navigation';
+import ProfilePage from './ProfilePage';
+import { AuthProvider, useAuth } from './AuthContext';
 import './App.css';
 
 const App = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [guide, setGuide] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(localStorage.getItem('token') !== null);
+  const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setLoggedIn(false);
-  };
 
+  React.useEffect(() => {
+    console.log("User data in App:", user);
+  }, [user]);
+ 
   const fetchImageUrl = async (query) => {
     try {
       const response = await fetch('http://localhost:5000/get_image', {
@@ -170,27 +173,23 @@ Be realistic, espeacially for one (or two)-day trip. Only include the itinerary 
   console.log({ HomePage, GuidePage, PreferenceForm, RecommendationList });
 
   return (
-    <Router>
-      <div>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/guide">Guide</Link>
-          <Link to="/preferences">Preferences</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/signup">Signup</Link>
-          {loggedIn && <button onClick={handleLogout}>Logout</button>}
-        </nav>
-        <Routes>
-          <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
-          <Route path="/guide" element={loading ? <div className="loading-spinner"></div> : <GuidePage guide={guide} />} />
-          <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
-          <Route path="/recommendations" element={loading ? <div className="loading-spinner"></div> : <RecommendationList recommendations={recommendations} />} />
-          <Route path="/login" element={<LoginPage onLogin={() => setLoggedIn(true)} />} />
-          <Route path="/signup" element={<SignupPage />} />
-        </Routes>
-      </div>
-    </Router>
-  );
+    <AuthProvider>
+        <Router>
+            <div>
+                <Navigation />
+                <Routes>
+                    <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
+                    <Route path="/guide" element={loading ? <div className="loading-spinner"></div> : <GuidePage guide={guide} />} />
+                    <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
+                    <Route path="/recommendations" element={loading ? <div className="loading-spinner"></div> : <RecommendationList recommendations={recommendations} />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignupPage />} />
+                    <Route path="/profile" element={<ProfilePage />} /> 
+                </Routes>
+            </div>
+        </Router>
+    </AuthProvider>
+);
 };
 
 export default App;
