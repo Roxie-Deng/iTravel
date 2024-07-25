@@ -1,40 +1,34 @@
 package com.example.iTravel.controller;
 
-import com.example.iTravel.model.POI;
-import com.example.iTravel.repository.POIRepository;
-import com.example.iTravel.service.ImageService;
+import com.example.iTravel.service.RecommendationService;
+import com.github.benmanes.caffeine.cache.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/recommendations")
-@CrossOrigin(origins = "http://localhost:3000")
 public class RecommendationController {
 
     @Autowired
-    private POIRepository poiRepository;
+    private RecommendationService recommendationService;
 
     @Autowired
-    private ImageService imageService;
+    private Cache<String, Object> caffeineCache;
 
-    @GetMapping("/poi")
-    public List<POI> getRecommendations(@RequestParam String category) {
-        List<String> categories = Arrays.asList(category.split(","));
-        System.out.println("Categories: " + categories);
+    @GetMapping("/recommendations")
+    public Object getRecommendations(@RequestParam String destination, @RequestParam String date) {
+        String cacheKey = "recommendations:" + destination + ":" + date;
+        Object cachedRecommendations = caffeineCache.getIfPresent(cacheKey);
 
-        List<POI> results = poiRepository.findByCategoryIn(categories);
-        System.out.println("Results: " + results);
+        if (cachedRecommendations != null) {
+            return cachedRecommendations;
+        }
 
-        results = results.stream().map(poi -> {
-            String imageUrl = imageService.getImageUrl(poi.getName());
-            poi.setImageUrl(imageUrl);
-            return poi;
-        }).collect(Collectors.toList());
-
-        return results;
+        Object recommendations = recommendationService.getRecommendations(destination, date);
+        if (recommendations != null) {
+            caffeineCache.put(cacheKey, recommendations);
+        }
+        return recommendations;
     }
 }

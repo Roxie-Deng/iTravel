@@ -2,27 +2,34 @@ package com.example.iTravel.controller;
 
 import com.example.iTravel.model.TravelGuide;
 import com.example.iTravel.service.TravelGuideService;
+import com.github.benmanes.caffeine.cache.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/guide")
 public class TravelGuideController {
 
     @Autowired
     private TravelGuideService travelGuideService;
 
-    @GetMapping("/")
-    public List<TravelGuide> getAllTravelGuides() {
-        return travelGuideService.getAllTravelGuides();
-    }
+    @Autowired
+    private Cache<String, Object> caffeineCache;
 
-    @PostMapping("/")
-    public ResponseEntity<TravelGuide> createTravelGuide(@RequestBody TravelGuide travelGuide) {
-        TravelGuide createdTravelGuide = travelGuideService.saveTravelGuide(travelGuide);
-        return ResponseEntity.ok(createdTravelGuide);
+    @GetMapping("/guide")
+    public Object getGuide(@RequestParam String destination, @RequestParam String time) {
+        String cacheKey = "guide:" + destination + ":" + time;
+        Object cachedGuide = caffeineCache.getIfPresent(cacheKey);
+
+        if (cachedGuide != null) {
+            return cachedGuide;
+        }
+
+        TravelGuide guide = travelGuideService.getGuideByDestinationAndTime(destination, time);
+        if (guide != null) {
+            caffeineCache.put(cacheKey, guide);
+        }
+        return guide;
     }
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import localforage from 'localforage';
 import PreferenceForm from './PreferenceForm';
 import RecommendationList from './RecommendationList';
 import HomePage from './HomePage';
@@ -9,7 +10,17 @@ import SignupPage from './SignupPage';
 import Navigation from './Navigation';
 import ProfilePage from './ProfilePage';
 import { AuthProvider, useAuth } from './AuthContext';
+import LoadingSpinner from './LoadingSpinner';
+
 import './App.css';
+
+localforage.config({
+  driver: localforage.LOCALSTORAGE,
+  name: 'iTravelCache',
+  version: 1.0,
+  storeName: 'keyvaluepairs',
+  description: 'some description'
+});
 
 const App = () => {
   const [recommendations, setRecommendations] = useState([]);
@@ -17,12 +28,23 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const { user, logout } = useAuth();
 
+  const [imageLoading, setImageLoading] = useState(false);
+  const [conversation, setConversation] = useState([]); // 保存对话上下文
+  const [currentDestination, setCurrentDestination] = useState(''); // 保存当前的destination
+  const [preferences, setPreferences] = useState({ visit: [] }); // 保存当前的preferences
+
+  const generateCacheKey = (type, destination, bodyContent) => {
+    return `${type}:${destination.toUpperCase()}:${JSON.stringify(bodyContent)}`;
+  };
+
+
 
   React.useEffect(() => {
     console.log("User data in App:", user);
   }, [user]);
  
   const fetchImageUrl = async (query) => {
+    setImageLoading(true);
     try {
       const response = await fetch('http://localhost:5000/get_image', {
         method: 'POST',
@@ -39,9 +61,10 @@ const App = () => {
     } catch (error) {
       console.error('Error fetching image URL:', error);
       return 'https://via.placeholder.com/150';
+    } finally {
+      setImageLoading(false);
     }
   };
-
 
   const parseRecommendations = async (text) => {
     const recommendations = [];
@@ -58,7 +81,7 @@ const App = () => {
         currentPOI = {
           name: placeName,
           description: match[2],
-          imageUrl: await fetchImageUrl(placeName) // 获取实际的图片链接
+          imageUrl: await fetchImageUrl(placeName)
         };
       } else if (currentPOI) {
         currentPOI.description += ' ' + line;
@@ -106,6 +129,18 @@ const App = () => {
   };
 
   const fetchContentFromBackend = async (destination, type, bodyContent) => {
+    const cacheKey = generateCacheKey(type, destination, bodyContent);
+    const cachedResponse = await localforage.getItem(cacheKey);
+
+    if (cachedResponse) {
+      if (type === 'recommendations') {
+        setRecommendations(cachedResponse);
+      } else if (type === 'guide') {
+        setGuide(cachedResponse);
+      }
+      return;
+    }
+
     setLoading(true);
     console.log(`Fetching ${type} for ${destination} with body:`, bodyContent);
     try {
@@ -122,9 +157,20 @@ const App = () => {
       if (type === 'recommendations') {
         const parsedRecommendations = await parseRecommendations(data.choices[0].message.content);
         setRecommendations(parsedRecommendations);
+        await localforage.setItem(cacheKey, parsedRecommendations);
       } else if (type === 'guide') {
-        setGuide(parseContent(data.choices[0].message.content));
+        const parsedGuide = parseContent(data.choices[0].message.content);
+        setGuide(parsedGuide);
+        await localforage.setItem(cacheKey, parsedGuide);
       }
+
+      // 保存对话上下文
+      setConversation(prevConversation => [
+        ...prevConversation,
+        ...bodyContent.messages,
+        { role: 'assistant', content: data.choices[0].message.content }
+      ]);
+
       setLoading(false);
     } catch (error) {
       console.error(`Failed to fetch ${type}:`, error);
@@ -133,12 +179,13 @@ const App = () => {
   };
 
   const handleGuideSubmit = async (destination, days) => {
-    setLoading(true);
-    await fetchContentFromBackend(destination, 'guide', {
+    setCurrentDestination(destination);
+    setConversation([]); // 清空之前的对话上下文
+    await fetchContentFromBackend(destination.toUpperCase(), 'guide', {
       model: 'kimi',
       messages: [{
         role: 'user',
-        content: `Generate a general travel itinerary for ${destination} for ${days} day(s) based on the current season, outlining activities for each day. List the activities in an itemized format and keep the description under 300 words. Please provide a detailed itinerary in a structured format for a trip lasting [number of days] days. Each day should be clearly labeled starting from Day 1 to Day [number of days], followed by a descriptive title for the day's theme. Each activity should be listed with a specific time block (Morning, Late Morning, Afternoon, Evening). Here is the format I need:
+        content: `Generate a general travel itinerary for ${destination.toUpperCase()} for ${days} day(s) based on the current season, outlining activities for each day. List the activities in an itemized format and keep the description under 300 words. Please provide a detailed itinerary in a structured format for a trip lasting [number of days] days. Each day should be clearly labeled starting from Day 1 to Day [number of days], followed by a descriptive title for the day's theme. Each activity should be listed with a specific time block (Morning, Late Morning, Afternoon, Evening). Here is the format I need:
 
 - **Day 1: [Theme of the Day]**
   - Morning: [Activity]
@@ -147,23 +194,39 @@ const App = () => {
   - Evening: [Activity]
 
 Continue this format for each subsequent day.
-Be realistic, espeacially for one (or two)-day trip. Only include the itinerary details and activities without any additional commentary (eg."Certainly! Here is...").`
+Be realistic, especially for one (or two)-day trip. Only include the itinerary details and activities without any additional commentary (eg."Certainly! Here is...").`
       }],
       use_search: false,
       stream: false
     });
-    setLoading(false);
   };
 
   const handleSubmit = async (destination, preferences) => {
-    setLoading(true);
+    setCurrentDestination(destination);
+    setPreferences(preferences);
+    setConversation([]); // 清空之前的对话上下文
     const query = preferences.visit.join(', ');
-    await fetchContentFromBackend(destination, 'recommendations', {
+    await fetchContentFromBackend(destination.toUpperCase(), 'recommendations', {
       model: 'kimi',
       messages: [{
         role: 'user',
-        content: `Recommend 3 points of interest in ${destination} for these categories: ${query}.`
+        content: `Recommend 3 points of interest in ${destination.toUpperCase()} for these categories: ${query}.`
       }],
+      use_search: false,
+      stream: false
+    });
+  };
+
+  const fetchMoreRecommendations = async () => {
+    setLoading(true);
+    const query = preferences.visit.join(', ');
+    const newMessage = {
+      role: 'user',
+      content: `Recommend 3 other points of interest in ${currentDestination.toUpperCase()} for these categories: ${query}. Make sure the recommendations are different from any previously provided.`
+    };
+    await fetchContentFromBackend(currentDestination, 'recommendations', {
+      model: 'kimi',
+      messages: [...conversation, newMessage],
       use_search: false,
       stream: false
     });
@@ -181,7 +244,13 @@ Be realistic, espeacially for one (or two)-day trip. Only include the itinerary 
                     <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
                     <Route path="/guide" element={loading ? <div className="loading-spinner"></div> : <GuidePage guide={guide} />} />
                     <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
-                    <Route path="/recommendations" element={loading ? <div className="loading-spinner"></div> : <RecommendationList recommendations={recommendations} />} />
+                    <Route path="/recommendations" element={
+                      loading || imageLoading ? <LoadingSpinner /> :
+                        <RecommendationList
+                            recommendations={recommendations}
+                            onFetchMoreRecommendations={fetchMoreRecommendations}
+                        />
+                    } />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/signup" element={<SignupPage />} />
                     <Route path="/profile" element={<ProfilePage />} /> 
@@ -189,7 +258,7 @@ Be realistic, espeacially for one (or two)-day trip. Only include the itinerary 
             </div>
         </Router>
     </AuthProvider>
-);
+  );
 };
 
 export default App;

@@ -1,27 +1,13 @@
 package com.example.iTravel.service;
 
-import com.example.iTravel.model.POI;
-import com.example.iTravel.repository.POIRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-
-//Create a service class to implement the recommendation logic
-//For simplicity, recommendations only based on category and rating
 
 @Service
 public class RecommendationService {
 
-    @Autowired
-    private POIRepository poiRepository;
-
-    public List<POI> recommendPOIs(String category, double minRating) {
-        List<POI> allPOIs = poiRepository.findAll();
-        return allPOIs.stream()
-                .filter(poi -> poi.getCategory().equalsIgnoreCase(category) && poi.getRating() >= minRating)
-                .collect(Collectors.toList());
+    public Object getRecommendations(String destination, String date) {
+        // Implement your logic to get recommendations based on destination and date
+        // For demonstration, returning a dummy object
+        return "Sample recommendations for " + destination + " on " + date;
     }
 }

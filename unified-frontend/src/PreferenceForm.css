@@ -1,4 +1,9 @@
 /* src/PreferenceForm.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
 form {
     width: 80%;
     margin: 0 auto;
@@ -7,7 +12,14 @@ form {
     align-items: center;
 }
 
+.form-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
 .section {
+    width: 100%;
     margin-bottom: 20px;
     text-align: center;
 }
@@ -15,23 +27,72 @@ form {
 .checkbox-group {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+}
+
+.category-box {
+    width: 40%;
+    /* 缩短矩形宽度 */
+    height: 70px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e0e0e0;
+    margin: 10px 0;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.category-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.3;
+    /* 调整透明度 */
+    z-index: 1;
+}
+
+.category-box:hover::before {
+    opacity: 0.8;
+}
+
+.category-box:nth-child(1)::before {
+    background-image: url('https://www.lux-review.com/wp-content/uploads/2018/12/canada-1.jpg');
+}
+
+.category-box:nth-child(2)::before {
+    background-image: url('https://i.ibb.co/q9czXry/20240713215051.jpg');
+}
+
+.category-box:nth-child(3)::before {
+    background-image: url('https://cdn.habitusliving.com/wp-content/uploads/SydneyOperaHouseccFlickrEdMcCulloch.jpg');
 }
 
 label {
-    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    /* 字体加粗 */
+    margin-left: 10px;
+    z-index: 2;
+    /* 使文本在背景图片上方 */
+    color: black;
+    /* 使文本颜色为黑色 */
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+    /* 添加文本投影 */
 }
 
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #000;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-button:hover {
-    background-color: #555;
+/* 调整复选框尺寸 */
+input[type="checkbox"] {
+    width: 15px;
+    /* 设置宽度 */
+    height: 15px;
+    /* 设置高度 */
 }

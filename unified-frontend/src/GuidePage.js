@@ -5,7 +5,7 @@ import './GuidePage.css'; // 引入自定义 CSS
 const GuidePage = ({ guide }) => {
   const location = useLocation();
   const destination = location.state?.destination;
-  
+
   //Debug
   useEffect(() => {
     console.log("Received destination:", destination);
