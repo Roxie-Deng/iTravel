@@ -5,7 +5,13 @@ import PreferenceForm from './PreferenceForm';
 import RecommendationList from './RecommendationList';
 import HomePage from './HomePage';
 import GuidePage from './GuidePage';
+import LoginPage from './LoginPage';
+import SignupPage from './SignupPage';
+import Navigation from './Navigation';
+import ProfilePage from './ProfilePage';
+import { AuthProvider, useAuth } from './AuthContext';
 import LoadingSpinner from './LoadingSpinner';
+
 import './App.css';
 
 localforage.config({
@@ -20,6 +26,8 @@ const App = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [guide, setGuide] = useState('');
   const [loading, setLoading] = useState(false);
+  const { user, logout } = useAuth();
+
   const [imageLoading, setImageLoading] = useState(false);
   const [conversation, setConversation] = useState([]); // 保存对话上下文
   const [currentDestination, setCurrentDestination] = useState(''); // 保存当前的destination
@@ -29,6 +37,12 @@ const App = () => {
     return `${type}:${destination.toUpperCase()}:${JSON.stringify(bodyContent)}`;
   };
 
+
+
+  React.useEffect(() => {
+    console.log("User data in App:", user);
+  }, [user]);
+ 
   const fetchImageUrl = async (query) => {
     setImageLoading(true);
     try {
@@ -222,27 +236,28 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
   console.log({ HomePage, GuidePage, PreferenceForm, RecommendationList });
 
   return (
-    <Router>
-      <div>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/guide">Guide</Link>
-          <Link to="/preferences">Preferences</Link>
-        </nav>
-        <Routes>
-          <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
-          <Route path="/guide" element={loading ? <LoadingSpinner /> : <GuidePage guide={guide} />} />
-          <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
-          <Route path="/recommendations" element={
-            loading || imageLoading ? <LoadingSpinner /> :
-              <RecommendationList
-                recommendations={recommendations}
-                onFetchMoreRecommendations={fetchMoreRecommendations}
-              />
-          } />
-        </Routes>
-      </div>
-    </Router>
+    <AuthProvider>
+        <Router>
+            <div>
+                <Navigation />
+                <Routes>
+                    <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
+                    <Route path="/guide" element={loading ? <div className="loading-spinner"></div> : <GuidePage guide={guide} />} />
+                    <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
+                    <Route path="/recommendations" element={
+                      loading || imageLoading ? <LoadingSpinner /> :
+                        <RecommendationList
+                            recommendations={recommendations}
+                            onFetchMoreRecommendations={fetchMoreRecommendations}
+                        />
+                    } />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignupPage />} />
+                    <Route path="/profile" element={<ProfilePage />} /> 
+                </Routes>
+            </div>
+        </Router>
+    </AuthProvider>
   );
 };
 

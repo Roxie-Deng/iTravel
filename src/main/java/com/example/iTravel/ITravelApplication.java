@@ -8,6 +8,9 @@ public class ITravelApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ITravelApplication.class, args);
-	}
 
+		SpringApplication app = new SpringApplication(ITravelApplication.class);
+		app.setAdditionalProfiles("debug");
+		app.run(args);
+	}
 }
