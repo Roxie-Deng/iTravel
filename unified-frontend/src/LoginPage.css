@@ -1,0 +1,65 @@
+.login-container {
+  width: 500px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+.login-container h1 {
+  text-align: center;
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+
+.login-container form div {
+  margin-bottom: 15px;
+}
+
+.login-container label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.login-container input {
+  width: 100%;
+  min-width: 300px; /* Minimum width */
+  max-width: 500px; /* Maximum width before it stops expanding */
+  padding: 8px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.login-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-actions button {
+  width: 100%;
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-actions button:hover {
+  background-color: #218838;
+}
+
+
+.signup-prompt {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.signup-prompt p {
+  margin-bottom: 10px;
+}
