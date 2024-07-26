@@ -1,186 +1,35 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import localforage from 'localforage';
-import PreferenceForm from './PreferenceForm';
-import RecommendationList from './RecommendationList';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { fetchContentFromBackend, fetchImageUrl } from './utils/api';
+import { AuthProvider, useAuth } from './AuthContext';
 import HomePage from './HomePage';
 import GuidePage from './GuidePage';
+import PreferenceForm from './PreferenceForm';
+import RecommendationList from './RecommendationList';
+import LoadingSpinner from './LoadingSpinner';
+import Navigation from './Navigation';
 import LoginPage from './LoginPage';
 import SignupPage from './SignupPage';
-import Navigation from './Navigation';
 import ProfilePage from './ProfilePage';
-import { AuthProvider, useAuth } from './AuthContext';
-import LoadingSpinner from './LoadingSpinner';
-
 import './App.css';
-
-localforage.config({
-  driver: localforage.LOCALSTORAGE,
-  name: 'iTravelCache',
-  version: 1.0,
-  storeName: 'keyvaluepairs',
-  description: 'some description'
-});
 
 const App = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [guide, setGuide] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user, logout } = useAuth();
-
   const [imageLoading, setImageLoading] = useState(false);
-  const [conversation, setConversation] = useState([]); // 保存对话上下文
-  const [currentDestination, setCurrentDestination] = useState(''); // 保存当前的destination
-  const [preferences, setPreferences] = useState({ visit: [] }); // 保存当前的preferences
-
-  const generateCacheKey = (type, destination, bodyContent) => {
-    return `${type}:${destination.toUpperCase()}:${JSON.stringify(bodyContent)}`;
-  };
-
-
+  const [conversation, setConversation] = useState([]);
+  const [currentDestination, setCurrentDestination] = useState('');
+  const [preferences, setPreferences] = useState({ visit: [] });
+  const { user } = useAuth();
 
   React.useEffect(() => {
     console.log("User data in App:", user);
   }, [user]);
- 
-  const fetchImageUrl = async (query) => {
-    setImageLoading(true);
-    try {
-      const response = await fetch('http://localhost:5000/get_image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ query })
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      return data.image_url || 'https://via.placeholder.com/150';
-    } catch (error) {
-      console.error('Error fetching image URL:', error);
-      return 'https://via.placeholder.com/150';
-    } finally {
-      setImageLoading(false);
-    }
-  };
-
-  const parseRecommendations = async (text) => {
-    const recommendations = [];
-    const lines = text.split('\n');
-    let currentPOI = null;
-
-    for (const line of lines) {
-      const match = line.match(/^\d+\.\s\*\*(.+?)\*\*\:\s(.+)/);
-      if (match) {
-        if (currentPOI) {
-          recommendations.push(currentPOI);
-        }
-        const placeName = match[1];
-        currentPOI = {
-          name: placeName,
-          description: match[2],
-          imageUrl: await fetchImageUrl(placeName)
-        };
-      } else if (currentPOI) {
-        currentPOI.description += ' ' + line;
-      }
-    }
-
-    if (currentPOI) {
-      recommendations.push(currentPOI);
-    }
-
-    return recommendations;
-  };
-
-  const parseContent = (responseBody) => {
-    const dayRegex = /-\s\*\*Day\s(\d+):\s(.*?)\*\*\n(.*?)(?=\n- \*\*Day|\n\n- \*\*Day|\n\*\*Day|$)/gs;
-    const activityRegex = /-\s(Morning|Late Morning|Afternoon|Evening):\s(.*?)\n/gs;
-
-    let guide = [];
-
-    let dayMatch;
-    while ((dayMatch = dayRegex.exec(responseBody))) {
-      let dayNumber = dayMatch[1];
-      let dayTheme = dayMatch[2];
-      let activities = dayMatch[3];
-
-      let dayActivities = [];
-      let activityMatch;
-      while ((activityMatch = activityRegex.exec(activities))) {
-        let time = activityMatch[1];
-        let description = activityMatch[2].trim();
-
-        dayActivities.push({
-          time,
-          description
-        });
-      }
-
-      guide.push({
-        day: `Day ${dayNumber}: ${dayTheme}`,
-        activities: dayActivities
-      });
-    }
-
-    return guide;
-  };
-
-  const fetchContentFromBackend = async (destination, type, bodyContent) => {
-    const cacheKey = generateCacheKey(type, destination, bodyContent);
-    const cachedResponse = await localforage.getItem(cacheKey);
-
-    if (cachedResponse) {
-      if (type === 'recommendations') {
-        setRecommendations(cachedResponse);
-      } else if (type === 'guide') {
-        setGuide(cachedResponse);
-      }
-      return;
-    }
-
-    setLoading(true);
-    console.log(`Fetching ${type} for ${destination} with body:`, bodyContent);
-    try {
-      const response = await fetch(`http://localhost:8080/api/kimi/${type}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(bodyContent)
-      });
-      const data = await response.json();
-      console.log(`Fetched ${type} data:`, data);
-
-      if (type === 'recommendations') {
-        const parsedRecommendations = await parseRecommendations(data.choices[0].message.content);
-        setRecommendations(parsedRecommendations);
-        await localforage.setItem(cacheKey, parsedRecommendations);
-      } else if (type === 'guide') {
-        const parsedGuide = parseContent(data.choices[0].message.content);
-        setGuide(parsedGuide);
-        await localforage.setItem(cacheKey, parsedGuide);
-      }
-
-      // 保存对话上下文
-      setConversation(prevConversation => [
-        ...prevConversation,
-        ...bodyContent.messages,
-        { role: 'assistant', content: data.choices[0].message.content }
-      ]);
-
-      setLoading(false);
-    } catch (error) {
-      console.error(`Failed to fetch ${type}:`, error);
-      setLoading(false);
-    }
-  };
 
   const handleGuideSubmit = async (destination, days) => {
     setCurrentDestination(destination);
-    setConversation([]); // 清空之前的对话上下文
+    setConversation([]);
     await fetchContentFromBackend(destination.toUpperCase(), 'guide', {
       model: 'kimi',
       messages: [{
@@ -198,13 +47,13 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
       }],
       use_search: false,
       stream: false
-    });
+    }, setLoading, setConversation, setRecommendations, setGuide);
   };
 
   const handleSubmit = async (destination, preferences) => {
     setCurrentDestination(destination);
     setPreferences(preferences);
-    setConversation([]); // 清空之前的对话上下文
+    setConversation([]);
     const query = preferences.visit.join(', ');
     await fetchContentFromBackend(destination.toUpperCase(), 'recommendations', {
       model: 'kimi',
@@ -214,7 +63,7 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
       }],
       use_search: false,
       stream: false
-    });
+    }, setLoading, setConversation, setRecommendations, setGuide);
   };
 
   const fetchMoreRecommendations = async () => {
@@ -229,34 +78,32 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
       messages: [...conversation, newMessage],
       use_search: false,
       stream: false
-    });
+    }, setLoading, setConversation, setRecommendations, setGuide);
     setLoading(false);
   };
 
-  console.log({ HomePage, GuidePage, PreferenceForm, RecommendationList });
-
   return (
     <AuthProvider>
-        <Router>
-            <div>
-                <Navigation />
-                <Routes>
-                    <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
-                    <Route path="/guide" element={loading ? <div className="loading-spinner"></div> : <GuidePage guide={guide} />} />
-                    <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
-                    <Route path="/recommendations" element={
-                      loading || imageLoading ? <LoadingSpinner /> :
-                        <RecommendationList
-                            recommendations={recommendations}
-                            onFetchMoreRecommendations={fetchMoreRecommendations}
-                        />
-                    } />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/signup" element={<SignupPage />} />
-                    <Route path="/profile" element={<ProfilePage />} /> 
-                </Routes>
-            </div>
-        </Router>
+      <Router>
+        <div>
+          <Navigation />
+          <Routes>
+            <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
+            <Route path="/guide" element={loading ? <div className="loading-spinner"></div> : <GuidePage guide={guide} />} />
+            <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
+            <Route path="/recommendations" element={
+              loading || imageLoading ? <LoadingSpinner /> :
+                <RecommendationList
+                  recommendations={recommendations}
+                  onFetchMoreRecommendations={fetchMoreRecommendations}
+                />
+            } />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Routes>
+        </div>
+      </Router>
     </AuthProvider>
   );
 };
