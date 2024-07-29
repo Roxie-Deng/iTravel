@@ -66,14 +66,14 @@ const LoginPage = () => {
         </div>
         {error && <div style={{ color: 'red' }}>{error}</div>}
         <div className="login-actions">
-          <button type="button">Forget password</button>
+          <Link to="/forgetpassword">Forget Password</Link>
           <button type="submit">Login</button>
         </div>
       </form>
       <div className="signup-prompt">
-        <p>New User? Create an Account</p>
+        <p>Don't have an account?</p>
         <Link to="/signup">
-          <button>Create a new account</button>
+          Sign Up
         </Link>
       </div>
     </div>

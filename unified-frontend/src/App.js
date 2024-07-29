@@ -11,6 +11,7 @@ import Navigation from './Navigation';
 import LoginPage from './LoginPage';
 import SignupPage from './SignupPage';
 import ProfilePage from './ProfilePage';
+import ForgetPage from './ForgetPage'
 import './App.css';
 
 const App = () => {
@@ -101,6 +102,7 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/forgetpassword" element={<ForgetPage />} />
           </Routes>
         </div>
       </Router>
