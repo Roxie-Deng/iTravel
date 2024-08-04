@@ -19,9 +19,14 @@ public class User {
     @DBRef
     private Set<Role> roles = new HashSet<>();
 
+    private String avatarUrl; // URL for external storage
+    private byte[] avatarBytes; // Byte array for storing image data
+
+    // To create a new account (TODO:之后可能和下面的constructor合并，设置默认头像)
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
     }
+
 }

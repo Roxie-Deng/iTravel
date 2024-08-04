@@ -4,7 +4,7 @@ const ForgetPage = () => {
 
   return (
     <div>
-      <h2> This is a Forget Password Page</h2>
+      <h2> To be developed (send verification to your mailbox)</h2>
     </div>
   );
 };
