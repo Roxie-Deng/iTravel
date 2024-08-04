@@ -4,11 +4,14 @@ import com.example.iTravel.model.TravelGuide;
 import com.example.iTravel.service.TravelGuideService;
 import com.github.benmanes.caffeine.cache.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("/api/guides")
 public class TravelGuideController {
 
     @Autowired
@@ -17,7 +20,9 @@ public class TravelGuideController {
     @Autowired
     private Cache<String, Object> caffeineCache;
 
-    @GetMapping("/guide")
+    private static final Logger logger = LoggerFactory.getLogger(TravelGuideController.class);
+
+    @GetMapping
     public Object getGuide(@RequestParam String destination, @RequestParam String time) {
         String cacheKey = "guide:" + destination + ":" + time;
         Object cachedGuide = caffeineCache.getIfPresent(cacheKey);
@@ -31,5 +36,11 @@ public class TravelGuideController {
             caffeineCache.put(cacheKey, guide);
         }
         return guide;
+    }
+
+    @PostMapping
+    public TravelGuide saveGuide(@RequestBody TravelGuide guide) {
+        logger.info("Received guide: {}", guide);
+        return travelGuideService.saveTravelGuide(guide);
     }
 }

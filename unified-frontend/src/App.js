@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { fetchContentFromBackend, fetchImageUrl } from './utils/api';
+import { fetchContentFromBackend, fetchImageUrl, savePOI, saveGuide } from './utils/api';
 import { AuthProvider, useAuth } from './AuthContext';
 import HomePage from './HomePage';
 import GuidePage from './GuidePage';
@@ -11,7 +11,7 @@ import Navigation from './Navigation';
 import LoginPage from './LoginPage';
 import SignupPage from './SignupPage';
 import ProfilePage from './ProfilePage';
-import ForgetPage from './ForgetPage'
+import ForgetPage from './ForgetPage';
 import './App.css';
 
 const App = () => {
@@ -83,6 +83,26 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
     setLoading(false);
   };
 
+  const handleSavePOI = async (poi) => {
+    try {
+      const savedPOI = await savePOI(poi);
+      console.log('Saved POI:', savedPOI);
+    } catch (error) {
+      console.error('Failed to save POI:', error);
+    }
+  };
+
+  const handleSaveGuide = async (guide) => {
+    try {
+      const savedGuide = await saveGuide(guide);
+      console.log('Saved Guide:', savedGuide);
+    } catch (error) {
+      console.error('Failed to save guide:', error);
+    }
+  };
+
+  console.log({ HomePage, GuidePage, PreferenceForm, RecommendationList });
+
   return (
     <AuthProvider>
       <Router>
@@ -90,13 +110,14 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
           <Navigation />
           <Routes>
             <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
-            <Route path="/guide" element={loading ? <div className="loading-spinner"></div> : <GuidePage guide={guide} />} />
+            <Route path="/guide" element={loading ? <div className="loading-spinner"></div> : <GuidePage guide={guide} onSave={handleSaveGuide} />} />
             <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
             <Route path="/recommendations" element={
               loading || imageLoading ? <LoadingSpinner /> :
                 <RecommendationList
                   recommendations={recommendations}
                   onFetchMoreRecommendations={fetchMoreRecommendations}
+                  onSave={handleSavePOI}  // Pass the handleSavePOI function
                 />
             } />
             <Route path="/login" element={<LoginPage />} />

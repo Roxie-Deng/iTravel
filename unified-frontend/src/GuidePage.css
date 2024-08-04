@@ -54,3 +54,9 @@
 .recommend-link:hover {
   text-decoration: underline;
 }
+
+.save-message {
+  color: green;
+  font-weight: bold;
+  margin-top: 10px;
+}

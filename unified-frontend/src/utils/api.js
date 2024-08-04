@@ -1,3 +1,4 @@
+import axios from 'axios';
 import localforage from 'localforage';
 import { parseRecommendations, parseContent } from './parser';
 
@@ -85,4 +86,24 @@ const fetchContentFromBackend = async (destination, type, bodyContent, setLoadin
     }
 };
 
-export { fetchImageUrl, fetchContentFromBackend };
+const savePOI = async (poi) => {
+    try {
+        const response = await axios.post('http://localhost:8080/api/pois', poi);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to save POI:', error);
+        throw error;
+    }
+};
+
+const saveGuide = async (guide) => {
+    try {
+        const response = await axios.post('http://localhost:8080/api/guides', guide); // 确保路径与后端一致
+        return response.data;
+    } catch (error) {
+        console.error('Failed to save guide:', error);
+        throw error;
+    }
+};
+
+export { savePOI, saveGuide, fetchContentFromBackend, fetchImageUrl };

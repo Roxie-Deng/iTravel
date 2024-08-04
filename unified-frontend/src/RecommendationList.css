@@ -18,33 +18,25 @@
     margin: 20px;
     width: 250px;
     text-align: center;
+    position: relative;
 }
 
 .recommendation-card a.details-link {
     color: #007bff;
-    /* 蓝色链接色 */
     text-decoration: underline;
-    /* 去掉下划线 */
     font-weight: bold;
-    /* 加粗字体 */
     display: inline-block;
-    /* 确保元素可以设置宽度 */
     margin-top: 8px;
-    /* 留出一些空间 */
 }
 
 .recommendation-card a.details-link:hover {
     color: #0056b3;
-    /* 悬停时的颜色 */
 }
-
 
 .poi-image {
     width: 100%;
     height: 200px;
-    /* 设置一个固定的高度 */
     object-fit: cover;
-    /* 确保图片完全覆盖容器 */
     border-radius: 10px;
 }
 
@@ -84,4 +76,10 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+.save-message {
+    color: green;
+    font-size: 14px;
+    margin-top: 10px;
 }

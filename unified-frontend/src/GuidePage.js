@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import './GuidePage.css'; // 引入自定义 CSS
+import './GuidePage.css';
 
-const GuidePage = ({ guide }) => {
+const GuidePage = ({ guide, onSave }) => {
   const location = useLocation();
   const destination = location.state?.destination;
+  const [saveMessage, setSaveMessage] = useState('');
 
-  //Debug
   useEffect(() => {
     console.log("Received destination:", destination);
     console.log("Guide data received:", guide);
@@ -15,6 +15,23 @@ const GuidePage = ({ guide }) => {
   if (!guide || guide.length === 0) {
     console.error("Guide data is empty or undefined:", guide);
   }
+
+  const handleSave = async () => {
+    try {
+      await onSave({
+        destination: destination,
+        guide: JSON.stringify(guide),
+        time: new Date().toISOString(),
+        description: `Travel guide for ${destination}`
+      });
+      setSaveMessage('Guide saved successfully!');
+      setTimeout(() => setSaveMessage(''), 3000); // 3秒后清除消息
+    } catch (error) {
+      console.error('Failed to save guide:', error);
+      setSaveMessage('Failed to save guide.');
+      setTimeout(() => setSaveMessage(''), 3000);
+    }
+  };
 
   return (
     <div className="guide-page">
@@ -33,7 +50,8 @@ const GuidePage = ({ guide }) => {
               </div>
             </div>
           ))}
-          <button className="save-button">Save</button>
+          <button className="save-button" onClick={handleSave}>Save</button>
+          {saveMessage && <p className="save-message">{saveMessage}</p>}
         </div>
       ) : (
         <p>No guide available. Please return home and submit a destination.</p>

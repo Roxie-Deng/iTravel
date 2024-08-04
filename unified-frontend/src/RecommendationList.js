@@ -1,7 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './RecommendationList.css';
 
-const RecommendationList = ({ recommendations, onFetchMoreRecommendations }) => {
+const RecommendationList = ({ recommendations, onFetchMoreRecommendations, onSave }) => {
+    const [savedPOI, setSavedPOI] = useState(null);
+
+    const handleSave = async (poi) => {
+        try {
+            await onSave(poi);
+            setSavedPOI(poi.name);
+            setTimeout(() => setSavedPOI(null), 3000); // 3秒后清除消息
+        } catch (error) {
+            console.error('Failed to save POI:', error);
+        }
+    };
+
     return (
         <div className="recommendation-list">
             <h2>Recommendations</h2>
@@ -25,7 +37,8 @@ const RecommendationList = ({ recommendations, onFetchMoreRecommendations }) => 
                                 Details
                             </a>
                         </p>
-                        <button>Save</button>
+                        <button onClick={() => handleSave(poi)}>Save</button>
+                        {savedPOI === poi.name && <p className="save-message">POI saved successfully!</p>}
                     </div>
                 ))}
             </div>
