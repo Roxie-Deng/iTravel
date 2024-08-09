@@ -45,17 +45,53 @@ const ProfilePage = () => {
     }
   }, [user]);
 
+
   if (!user) {
     return <Navigate to="/login" />;
   }
 
+  const handleFileUpload = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const token = localStorage.getItem('token');
+      console.log("Using token: ", token);
+
+      const response = await fetch('http://localhost:8080/api/files/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Error uploading file: ' + response.statusText);
+      }
+
+      const fileId = await response.text();
+
+      const newAvatarUrl = `http://localhost:8080/api/files/download/${response.data}`;
+      setAvatarPreview(newAvatarUrl);
+      setAuth({ isLoggedIn: true, user: { ...user, avatarUrl: newAvatarUrl } }); // Update the user context with the new avatar URL
+      alert('File uploaded successfully: ' + fileId);
+    } catch (error) {
+      console.error('Error uploading file: ', error);
+      alert('Error uploading file');
+    }
+  };
+
+
   const handleAvatarChange = (event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
+
       const objectUrl = URL.createObjectURL(file);
       setAvatarPreview(objectUrl);
       // TODO: 实现头像上传逻辑
       return () => URL.revokeObjectURL(objectUrl);
+      handleFileUpload(file);
     }
   };
 
@@ -73,6 +109,9 @@ const ProfilePage = () => {
     <div className="profile-container">
       <div className="user-profile">
         <img src={avatarPreview} alt={user.username} className="profile-picture" />
+
+        <input type="file" onChange={handleAvatarChange} />
+
         <h1>{user.username}</h1>
         <Link to="/edit-profile">Edit Profile</Link>
       </div>
