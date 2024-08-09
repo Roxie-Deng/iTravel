@@ -32,11 +32,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+
 @RestController
 @RequestMapping("/api/auth")
-
 public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
@@ -57,7 +57,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-
+        logger.info("Received login request: " + loginRequest);
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -78,65 +78,42 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
-        }
+        logger.info("Received signup request for username: " + signUpRequest.getUsername());
 
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
-        }
+        try {
+            if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+                logger.info("Username is already taken: " + signUpRequest.getUsername());
+                return ResponseEntity
+                        .badRequest()
+                        .body(new MessageResponse("Error: Username is already taken!"));
+            }
 
-        // Create new user's account
-        User user = new User(signUpRequest.getUsername(),
-                signUpRequest.getEmail(),
-               encoder.encode(signUpRequest.getPassword()));
+            if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+                logger.info("Email is already in use: " + signUpRequest.getEmail());
+                return ResponseEntity
+                        .badRequest()
+                        .body(new MessageResponse("Error: Email is already in use!"));
+            }
 
-        // 添加日志以确认查询执行
-        logger.debug("Looking for role: ROLE_USER");
-        /*// 默认分配 ROLE_USER 角色
-        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-        Set<Role> roles = new HashSet<>();
-        roles.add(userRole);
-        user.setRoles(roles);
+            // Create new user's account
+            User user = new User(signUpRequest.getUsername(),
+                    signUpRequest.getEmail(),
+                    encoder.encode(signUpRequest.getPassword()));
 
-        userRepository.save(user);
-
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));*/
-
-       Set<String> strRoles = signUpRequest.getRoles();
-        Set<Role> roles = new HashSet<>();
-
-        if (strRoles == null) { // 默认分配ROLE_USER角色
+            Set<Role> roles = new HashSet<>();
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> { // 如果SignupRequest提供了角色，根据提供的角色进行分配
-                switch (role) {
-                    case "admin":
-                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN) //TODO:Admin直接在数据库添加
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(adminRole);
+            user.setRoles(roles);
 
-                        break;
-
-                    default:
-                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(userRole);
-                }
-            });
+            userRepository.save(user);
+            logger.info("User registered successfully: " + signUpRequest.getUsername());
+            return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        } catch (Exception e) {
+            logger.error("Error during user registration: ", e);
+            return ResponseEntity
+                    .internalServerError()
+                    .body(new MessageResponse("Error: " + e.getMessage()));
         }
-
-
-        user.setRoles(roles);
-        userRepository.save(user);
-
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 }

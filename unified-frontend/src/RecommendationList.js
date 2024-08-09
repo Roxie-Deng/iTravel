@@ -1,14 +1,21 @@
+// src/RecommendationList.js
+
 import React, { useState } from 'react';
+import { useAuth } from './AuthContext'; // Import useAuth for user context
 import './RecommendationList.css';
 
 const RecommendationList = ({ recommendations, onFetchMoreRecommendations, onSave }) => {
     const [savedPOI, setSavedPOI] = useState(null);
+    const { user } = useAuth(); // Get user from context
 
     const handleSave = async (poi) => {
+        if (!user) {
+            alert('Please log in to save POIs');
+            return;
+        }
         try {
             await onSave(poi);
             setSavedPOI(poi.name);
-            setTimeout(() => setSavedPOI(null), 3000); // 3秒后清除消息
         } catch (error) {
             console.error('Failed to save POI:', error);
         }
@@ -38,7 +45,7 @@ const RecommendationList = ({ recommendations, onFetchMoreRecommendations, onSav
                             </a>
                         </p>
                         <button onClick={() => handleSave(poi)}>Save</button>
-                        {savedPOI === poi.name && <p className="save-message">POI saved successfully!</p>}
+                        {user && savedPOI === poi.name && <p className="success-message">POI saved successfully!</p>}
                     </div>
                 ))}
             </div>

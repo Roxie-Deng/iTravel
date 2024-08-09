@@ -1,35 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 import './GuidePage.css';
+import axios from 'axios';
 
-const GuidePage = ({ guide, onSave }) => {
+const GuidePage = ({ guide }) => {
   const location = useLocation();
   const destination = location.state?.destination;
-  const [saveMessage, setSaveMessage] = useState('');
+  const [savedMessage, setSavedMessage] = useState('');
+  const { user } = useAuth();
 
   useEffect(() => {
     console.log("Received destination:", destination);
     console.log("Guide data received:", guide);
   }, [destination, guide]);
 
-  if (!guide || guide.length === 0) {
-    console.error("Guide data is empty or undefined:", guide);
-  }
-
   const handleSave = async () => {
+    if (!user) {
+      alert('Please log in');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    console.log("JWT Token:", token); // 添加这行来调试看看token是否正确
+
     try {
-      await onSave({
-        destination: destination,
-        guide: JSON.stringify(guide),
-        time: new Date().toISOString(),
-        description: `Travel guide for ${destination}`
-      });
-      setSaveMessage('Guide saved successfully!');
-      setTimeout(() => setSaveMessage(''), 3000); // 3秒后清除消息
+      const response = await axios.post(
+        'http://localhost:8080/api/guides/guide',
+        { ...guide },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      setSavedMessage('Guide saved successfully!');
     } catch (error) {
       console.error('Failed to save guide:', error);
-      setSaveMessage('Failed to save guide.');
-      setTimeout(() => setSaveMessage(''), 3000);
+      setSavedMessage('Failed to save guide.');
     }
   };
 
@@ -51,7 +59,7 @@ const GuidePage = ({ guide, onSave }) => {
             </div>
           ))}
           <button className="save-button" onClick={handleSave}>Save</button>
-          {saveMessage && <p className="save-message">{saveMessage}</p>}
+          {user && savedMessage && <p className="success-message">{savedMessage}</p>}
         </div>
       ) : (
         <p>No guide available. Please return home and submit a destination.</p>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './SignupPage.css'
+import { useAuth } from './AuthContext';
+import './SignupPage.css';
 
 const SignupPage = () => {
   const [username, setUsername] = useState('');
@@ -8,9 +9,12 @@ const SignupPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { register, login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     if (username.length < 3 || username.length > 20) {
       setError('Username must be between 3 and 20 characters');
       return;
@@ -19,21 +23,20 @@ const SignupPage = () => {
       setError('Password must be between 6 and 40 characters');
       return;
     }
-    const response = await fetch('http://localhost:8080/api/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, email, password }),
-    });
 
-    if (response.ok) {
-      console.log('Signup successful');
-      navigate('/login');
-    } else {
-      console.error('Signup failed');
+    try {
+      console.log('Attempting to register with:', { username, email, password });
+      await register(username, email, password);
+      console.log('Registration successful');
+
+      // 注册成功后直接登录
+      await login(username, password);
+      navigate('/');
+    } catch (error) {
+      console.error('Registration error:', error);
+      setError(error.message || 'An error occurred during registration. Please try again.');
     }
-  };// TODO: 设置邮箱验证
+  };
 
   return (
     <div className="signup-container">

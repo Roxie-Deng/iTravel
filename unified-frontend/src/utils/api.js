@@ -1,14 +1,45 @@
+// api.js
 import axios from 'axios';
 import localforage from 'localforage';
 import { parseRecommendations, parseContent } from './parser';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 localforage.config({
     driver: localforage.LOCALSTORAGE,
     name: 'iTravelCache',
     version: 1.0,
     storeName: 'keyvaluepairs',
-    description: 'some description'
+    description: 'iTravel application cache'
 });
+
+const api = axios.create({
+    baseURL: API_URL,
+});
+
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['Authorization'] = 'Bearer ' + token;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('token');
+            window.location = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
 
 const generateCacheKey = (type, destination, bodyContent) => {
     return `${type}:${destination.toUpperCase()}:${JSON.stringify(bodyContent)}`;
@@ -53,14 +84,8 @@ const fetchContentFromBackend = async (destination, type, bodyContent, setLoadin
     setLoading(true);
     console.log(`Fetching ${type} for ${destination} with body:`, bodyContent);
     try {
-        const response = await fetch(`http://localhost:8080/api/kimi/${type}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(bodyContent)
-        });
-        const data = await response.json();
+        const response = await api.post(`/api/kimi/${type}`, bodyContent);
+        const data = response.data;
         console.log(`Fetched ${type} data:`, data);
 
         if (type === 'recommendations') {
@@ -88,7 +113,7 @@ const fetchContentFromBackend = async (destination, type, bodyContent, setLoadin
 
 const savePOI = async (poi) => {
     try {
-        const response = await axios.post('http://localhost:8080/api/pois', poi);
+        const response = await api.post('/api/pois', poi);
         return response.data;
     } catch (error) {
         console.error('Failed to save POI:', error);
@@ -98,7 +123,7 @@ const savePOI = async (poi) => {
 
 const saveGuide = async (guide) => {
     try {
-        const response = await axios.post('http://localhost:8080/api/guides', guide); // 确保路径与后端一致
+        const response = await api.post('/api/guides', guide);
         return response.data;
     } catch (error) {
         console.error('Failed to save guide:', error);
@@ -106,4 +131,31 @@ const saveGuide = async (guide) => {
     }
 };
 
-export { savePOI, saveGuide, fetchContentFromBackend, fetchImageUrl };
+const fetchUserPOIs = async (userId) => {
+    try {
+        const response = await api.get(`/api/pois/user/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch user POIs:', error);
+        throw error;
+    }
+};
+
+const fetchUserGuides = async (userId) => {
+    try {
+        const response = await api.get(`/api/guides/user/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch user guides:', error);
+        throw error;
+    }
+};
+
+export {
+    savePOI,
+    saveGuide,
+    fetchContentFromBackend,
+    fetchImageUrl,
+    fetchUserPOIs,
+    fetchUserGuides
+};

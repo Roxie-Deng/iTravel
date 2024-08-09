@@ -1,23 +1,26 @@
 package com.example.iTravel.security;
 
-import java.io.IOException;
-
+import com.example.iTravel.service.UserDetailsImpl;
 import com.example.iTravel.service.UserDetailsServiceImpl;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@Component
 public class AuthTokenFilter extends OncePerRequestFilter {
+
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -30,16 +33,25 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            String jwt = parseJwt(request);// 从请求中解析JWT
-            if (jwt != null && jwtUtils.validateJwtToken(jwt)) { // 验证JWT是否有效
-                String username = jwtUtils.getUserNameFromJwtToken(jwt);// 从JWT中获取用户名
+            String path = request.getRequestURI();
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username); // 加载用户详细信息
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-                        userDetails.getAuthorities());// 创建认证token
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));// 设置认证详情
+            // 允许 /api/auth/** 路径的请求通过，不进行 JWT 验证
+            if (path.startsWith("/api/auth/")) {
+                logger.info("Allowing request to pass through without JWT validation: {}", path);
+                filterChain.doFilter(request, response);
+                return;
+            }
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);// 在SecurityContext中设置认证信息
+            String jwt = parseJwt(request);
+            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+                String username = jwtUtils.getUserNameFromJwtToken(jwt);
+
+                UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
             logger.error("Cannot set user authentication: {}", e);
@@ -49,7 +61,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     }
 
     private String parseJwt(HttpServletRequest request) {
-        String jwt = jwtUtils.getJwtFromCookies(request);// 从Cookie中获取JWT
-        return jwt;
+        String headerAuth = request.getHeader("Authorization");
+
+        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+            return headerAuth.substring(7);
+        }
+
+        return null;
     }
 }

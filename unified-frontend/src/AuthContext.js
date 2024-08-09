@@ -1,36 +1,63 @@
-import React, { createContext, useContext, useState } from 'react';
+import axios from 'axios';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const AuthContext = createContext({
-  auth: { isLoggedIn: false, user: null },
-  login: () => {},
-  logout: () => {}
-}
+const AuthContext = createContext();
 
-);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
 
-export const AuthProvider = ({children}) => {
-  const [auth, setAuth] = useState({
-    user: JSON.parse(localStorage.getItem('user')) // 从 localStorage 中恢复用户信息
-  });
-  console.log("AuthProvider auth state:", auth); 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.get('http://localhost:8080/api/auth/me', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(response => {
+          setUser(response.data);
+        })
+        .catch(() => {
+          localStorage.removeItem('token');
+          setUser(null);
+        });
+    }
+  }, []);
 
-  const login = (user) => {
-    setAuth({ isLoggedIn: true, user });
-    localStorage.setItem('token', user.token);
-    console.log("Login successful:", user);
+  const login = async (username, password) => {
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/login', { username, password });
+      setUser(response.data);
+      localStorage.setItem('token', response.data.token);
+    } catch (error) {
+      console.error('Login failed:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  };
+
+  const register = async (username, email, password) => {
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/signup', { username, email, password });
+      setUser(response.data);
+      localStorage.setItem('token', response.data.token);
+    } catch (error) {
+      console.error('Registration failed:', error.response ? error.response.data : error.message);
+      throw error;
+    }
   };
 
   const logout = () => {
-    setAuth({ isLoggedIn: false, user: null });
+    setUser(null);
     localStorage.removeItem('token');
-    console.log("Logged out");
   };
 
   return (
-    <AuthContext.Provider value={{ ...auth, login, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  return useContext(AuthContext);
+};

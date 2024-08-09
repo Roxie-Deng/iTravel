@@ -1,12 +1,9 @@
 package com.example.iTravel.security;
 
-import java.security.Key;
-import java.util.Date;
-
 import com.example.iTravel.service.UserDetailsImpl;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,70 +12,53 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.security.Key;
+import java.util.Date;
 
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${iTravel.app.jwtSecret}")
-    private String jwtSecret;
+    private final String jwtSecret;
+    private final int jwtExpirationMs;
+    private final String jwtCookie;
+    private final Key key;
 
-    @Value("${iTravel.app.jwtExpirationMs}")
-    private int jwtExpirationMs;
-
-    @Value("${iTravel.app.jwtCookieName}")
-    private String jwtCookie;
-
-    // 从请求中的cookie获取JWT
-    public String getJwtFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, jwtCookie);
-        if (cookie != null) {
-            return cookie.getValue();
-        } else {
-            return null;
-        }
+    public JwtUtils(
+            @Value("${iTravel.app.jwtSecret}") String jwtSecret,
+            @Value("${iTravel.app.jwtExpirationMs}") int jwtExpirationMs,
+            @Value("${iTravel.app.jwtCookieName}") String jwtCookie
+    ) {
+        this.jwtSecret = jwtSecret;
+        this.jwtExpirationMs = jwtExpirationMs;
+        this.jwtCookie = jwtCookie;
+        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        logger.info("JWT Secret initialized: " + jwtSecret);
     }
 
-    // 为用户生成带有JWT的Cookie
-    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true).build();
-        return cookie;
-    }
-
-    // 清除JWT Cookie
-    public ResponseCookie getCleanJwtCookie() {
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, null).path("/api").build();
-        return cookie;
-    }
-
-    // 从JWT中解析用户名
-    public String getUserNameFromJwtToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key()).build()
-                .parseClaimsJws(token).getBody().getSubject();
+    private Key key() {
+        // 使用 jwtSecret 字节数组生成密钥，而不进行 Base64 解码
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
     public String generateJwtToken(Authentication authentication) {
-
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
         return Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))
+                .setSubject(userPrincipal.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // 构造密钥
-    private Key key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+    public String getUserNameFromJwtToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(key()).build()
+                .parseClaimsJws(token).getBody().getSubject();
     }
 
-    // 验证JWT的有效性
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
@@ -92,11 +72,23 @@ public class JwtUtils {
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims string is empty: {}", e.getMessage());
         }
-
         return false;
     }
 
-    // 根据用户名生成JWT
+    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
+        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+        return ResponseCookie.from(jwtCookie, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true).build();
+    }
+
+    public ResponseCookie getCleanJwtCookie() {
+        return ResponseCookie.from(jwtCookie, null).path("/api").build();
+    }
+
+    public String getJwtFromCookies(HttpServletRequest request) {
+        Cookie cookie = WebUtils.getCookie(request, jwtCookie);
+        return cookie != null ? cookie.getValue() : null;
+    }
+
     public String generateTokenFromUsername(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -105,6 +97,4 @@ public class JwtUtils {
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
     }
-
-
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { fetchContentFromBackend, fetchImageUrl, savePOI, saveGuide } from './utils/api';
 import { AuthProvider, useAuth } from './AuthContext';
 import HomePage from './HomePage';
@@ -14,6 +14,11 @@ import ProfilePage from './ProfilePage';
 import ForgetPage from './ForgetPage';
 import './App.css';
 
+const ProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" />;
+};
+
 const App = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [guide, setGuide] = useState('');
@@ -22,11 +27,6 @@ const App = () => {
   const [conversation, setConversation] = useState([]);
   const [currentDestination, setCurrentDestination] = useState('');
   const [preferences, setPreferences] = useState({ visit: [] });
-  const { user } = useAuth();
-
-  React.useEffect(() => {
-    console.log("User data in App:", user);
-  }, [user]);
 
   const handleGuideSubmit = async (destination, days) => {
     setCurrentDestination(destination);
@@ -87,8 +87,16 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
     try {
       const savedPOI = await savePOI(poi);
       console.log('Saved POI:', savedPOI);
+      setRecommendations((prevRecommendations) =>
+        prevRecommendations.map((rec) =>
+          rec.name === poi.name ? { ...rec, saved: true } : rec
+        )
+      );
     } catch (error) {
       console.error('Failed to save POI:', error);
+      if (error.response && error.response.status === 401) {
+        alert('Please log in to save POIs');
+      }
     }
   };
 
@@ -96,12 +104,14 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
     try {
       const savedGuide = await saveGuide(guide);
       console.log('Saved Guide:', savedGuide);
+      setGuide((prevGuide) => ({ ...prevGuide, saved: true }));
     } catch (error) {
       console.error('Failed to save guide:', error);
+      if (error.response && error.response.status === 401) {
+        alert('Please log in to save guides');
+      }
     }
   };
-
-  console.log({ HomePage, GuidePage, PreferenceForm, RecommendationList });
 
   return (
     <AuthProvider>
@@ -110,19 +120,23 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
           <Navigation />
           <Routes>
             <Route path="/" element={<HomePage onSubmit={handleGuideSubmit} />} />
-            <Route path="/guide" element={loading ? <div className="loading-spinner"></div> : <GuidePage guide={guide} onSave={handleSaveGuide} />} />
+            <Route path="/guide" element={loading ? <LoadingSpinner /> : <GuidePage guide={guide} onSave={handleSaveGuide} />} />
             <Route path="/preferences" element={<PreferenceForm onSubmit={handleSubmit} />} />
             <Route path="/recommendations" element={
               loading || imageLoading ? <LoadingSpinner /> :
                 <RecommendationList
                   recommendations={recommendations}
                   onFetchMoreRecommendations={fetchMoreRecommendations}
-                  onSave={handleSavePOI}  // Pass the handleSavePOI function
+                  onSave={handleSavePOI}
                 />
             } />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
             <Route path="/forgetpassword" element={<ForgetPage />} />
           </Routes>
         </div>

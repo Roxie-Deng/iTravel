@@ -1,27 +1,32 @@
 package com.example.iTravel.controller;
 
 import com.example.iTravel.model.POI;
-import com.example.iTravel.repository.POIRepository;
+import com.example.iTravel.service.POIService;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-// Create an endpoint to add POIs to the MongoDB database.
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/pois")
 @CrossOrigin(origins = "http://localhost:3000")
 public class POIController {
 
     @Autowired
-    private POIRepository poiRepository;
+    private POIService poiService;
 
     @PostMapping
-    public POI addPOI(@RequestBody POI poi) {
-        return poiRepository.save(poi);
+    public POI addPOI(@RequestBody POI poi, HttpServletRequest request) {
+        Claims claims = (Claims) request.getAttribute("claims");
+        String userId = claims.getSubject();
+        poi.setUserId(userId);
+        return poiService.savePOI(poi);
     }
 
-    // 修改：新增获取POI接口
-    @GetMapping("/{id}")
-    public POI getPOI(@PathVariable String id) {
-        return poiRepository.findById(id).orElse(null);
+    @GetMapping("/user/{userId}")
+    public List<POI> getPOIsByUserId(@PathVariable String userId) {
+        return poiService.getPOIsByUserId(userId);
     }
 }
