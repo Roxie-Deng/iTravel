@@ -51,8 +51,14 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
+  //用户数据发生变化时
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser)); // Ensure the updated user data is stored
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout,updateUser }}>
       {children}
     </AuthContext.Provider>
   );
