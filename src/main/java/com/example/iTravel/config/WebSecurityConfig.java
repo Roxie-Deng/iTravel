@@ -89,8 +89,8 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/home", "/guide", "/preferences", "/recommendations", "/api/auth/**").permitAll()//这些端点所有用户可以访问
-                        .requestMatchers("/api/test/**","/api/files/**").authenticated()//这些端点验证用户可以访问
+                        .requestMatchers("/", "/home", "/guide", "/preferences", "/recommendations", "/auth/**","/download_avatar/**").permitAll()//这些端点所有用户可以访问//显示头像应为公共端点
+                        .requestMatchers("/test/**","/upload_avatar").authenticated()//这些端点验证用户可以访问//上传头像应通过验证
                         .anyRequest().permitAll()//未匹配上的其他请求所有用户可以访问
                 );
 

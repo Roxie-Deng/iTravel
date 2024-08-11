@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/files")
+@RequestMapping("/api")
 public class FileController {
 
     @Autowired
@@ -32,7 +32,7 @@ public class FileController {
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
 
     // 文件上传
-    @PostMapping("/upload")
+    @PostMapping("/upload_avatar")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
         String fileId = fileStorageService.addFile(file);
         logger.debug("File stored with ID: {}", fileId);
@@ -55,9 +55,14 @@ public class FileController {
     }
 
     // 文件下载
-    @GetMapping("/download/{id}")
-    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable String id) throws IOException {
-        GridFsResource resource = fileStorageService.getFileAsResource(id);
+    @GetMapping("/download_avatar/{fileId}")
+    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable String fileId) throws IOException {
+        GridFsResource resource = fileStorageService.getFileAsResource(fileId);
+        if (resource == null) {
+            logger.warn("File not found for ID: {}", fileId);
+            return ResponseEntity.notFound().build();
+        }
+        logger.info("File found: {}", resource.getFilename());
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(resource.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
