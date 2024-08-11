@@ -8,8 +8,11 @@ const UserAvatar = () => {
   const [avatarPreview, setAvatarPreview] = useState('');
 
   useEffect(() => {
-    if (user) {
-      setAvatarPreview(user.avatarUrl || placeholderImage);
+    if (user && user.avatarUrl) {
+      console.log('Setting avatar preview to:', user.avatarUrl);
+      setAvatarPreview(user.avatarUrl);
+    } else {
+      setAvatarPreview(placeholderImage);
     }
   }, [user]);
 
@@ -36,8 +39,14 @@ const UserAvatar = () => {
       const fileId = await response.text();
 
       const newAvatarUrl = `http://localhost:8080/api/files/download/${fileId}`;
+      console.log('Avatar uploaded successfully. New URL:', newAvatarUrl);
       setAvatarPreview(newAvatarUrl);
       updateUser({ isLoggedIn: true, user: { ...user, avatarUrl: newAvatarUrl } }); // Update the user context with the new avatar URL
+      
+      // Debug logs
+      console.log('Avatar preview should be set to:', newAvatarUrl);
+      console.log('User context after upload:', user);
+      
       alert('File uploaded successfully: ' + fileId);
     } catch (error) {
       console.error('Error uploading file: ', error);
