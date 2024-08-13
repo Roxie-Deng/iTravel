@@ -13,13 +13,26 @@ const RecommendationList = ({ recommendations, onFetchMoreRecommendations, onSav
             alert('Please log in to save POIs');
             return;
         }
+
+        const poiData = {
+            userId: user.id,
+            name: poi.name,
+            description: poi.description,
+            category: poi.category || "Uncategorized",
+            location: poi.location || "Unknown",
+            rating: poi.rating || 0.0,
+            imageUrl: poi.imageUrl,
+            imageBytes: poi.imageBytes || []
+        };
+
         try {
-            await onSave(poi);
+            await onSave(poiData);
             setSavedPOI(poi.name);
         } catch (error) {
             console.error('Failed to save POI:', error);
         }
     };
+
 
     return (
         <div className="recommendation-list">

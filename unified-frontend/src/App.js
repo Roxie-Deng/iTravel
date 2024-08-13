@@ -14,8 +14,14 @@ import ProfilePage from './ProfilePage';
 import ForgetPage from './ForgetPage';
 import './App.css';
 
+// 修改: 更新 ProtectedRoute 组件以处理 loading 状态
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   return user ? children : <Navigate to="/login" />;
 };
 
@@ -132,6 +138,7 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
             } />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            {/* 修改: 使用更新后的 ProtectedRoute */}
             <Route path="/profile" element={
               <ProtectedRoute>
                 <ProfilePage />

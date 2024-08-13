@@ -22,12 +22,20 @@ const GuidePage = ({ guide }) => {
     }
 
     const token = localStorage.getItem('token');
-    console.log("JWT Token:", token); // 添加这行来调试看看token是否正确
+    console.log("JWT Token:", token); // 调试查看token
+
+    const guideData = {
+      userId: user.id,
+      destination: destination || "Unknown",  // 确保有目的地信息
+      guide: JSON.stringify(guide),  // 将指南内容转换为字符串
+      time: new Date().toISOString(),  // 添加时间戳
+      description: `Travel guide for ${destination}`  // 添加描述
+    };
 
     try {
       const response = await axios.post(
         'http://localhost:8080/api/guides/guide',
-        { ...guide },
+        guideData,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -40,6 +48,7 @@ const GuidePage = ({ guide }) => {
       setSavedMessage('Failed to save guide.');
     }
   };
+
 
   return (
     <div className="guide-page">
