@@ -15,8 +15,12 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import javax.print.attribute.standard.DialogOwner;
 import java.io.IOException;
 import java.security.Key;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class JwtFilter implements Filter {
@@ -36,11 +40,15 @@ public class JwtFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String path = httpRequest.getRequestURI();
 
-        if (path.startsWith("/api/auth/signup") || path.startsWith("/api/auth/login")) {
+        // 公开路径
+        Set<String> openPaths = new HashSet<>(Arrays.asList(PublicPaths.PATHS));
+
+        if (openPaths.stream().anyMatch(path::startsWith)) {
             chain.doFilter(request, response);
             return;
         }
 
+        //需验证路径
         String authorizationHeader = httpRequest.getHeader("Authorization");
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {

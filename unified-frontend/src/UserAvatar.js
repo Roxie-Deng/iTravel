@@ -58,8 +58,8 @@ const UserAvatar = () => {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
       const objectUrl = URL.createObjectURL(file);
-      setAvatarPreview(objectUrl);
-      handleFileUpload(file);
+      setAvatarPreview(objectUrl);//临时URL用于预览
+      handleFileUpload(file);//上传，成功后持久化URL
       return () => URL.revokeObjectURL(objectUrl);
     }
   };
