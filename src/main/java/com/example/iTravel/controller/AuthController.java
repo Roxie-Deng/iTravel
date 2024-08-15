@@ -21,18 +21,14 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -120,4 +116,28 @@ public class AuthController {
                     .body(new MessageResponse("Error: " + e.getMessage()));
         }
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        // 获取当前认证的用户信息
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        // 根据用户名从数据库中查找用户
+        User user = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        // 构建响应对象，包含JWT token、用户基本信息以及头像URL
+        return ResponseEntity.ok(new JwtResponse(
+                null, // JWT token不需要重新生成，仅在登录时生成
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                userDetails.getAuthorities().stream()
+                        .map(item -> item.getAuthority())
+                        .collect(Collectors.toList()),
+                user.getAvatarUrl() // 包含用户的头像URL
+        ));
+    }
+
+
 }

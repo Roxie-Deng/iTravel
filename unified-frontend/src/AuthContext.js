@@ -13,16 +13,16 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          // 修改: 使用 await 等待认证检查完成
           const response = await axios.get('http://localhost:8080/api/auth/me', {
             headers: {
               Authorization: `Bearer ${token}`
             }
           });
+          console.log("User data fetched:", response.data); // 调试信息
           setUser(response.data);
         } catch (error) {
           console.error('Auth check failed:', error);
-          // 修改: 清除 token 和用户信息
+  
           localStorage.removeItem('token');
           localStorage.removeItem('user');
         }
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = (updatedUser) => {
     setUser(updatedUser);
-    // 修改: 移除更新本地存储的用户信息
+    localStorage.setItem('user', JSON.stringify(updatedUser)); // Ensure the updated user data is stored
   };
 
   // 修改: 在 context value 中包含 loading 状态

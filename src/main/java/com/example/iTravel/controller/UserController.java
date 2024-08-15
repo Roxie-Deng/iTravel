@@ -2,6 +2,7 @@ package com.example.iTravel.controller;
 
 import com.example.iTravel.model.POI;
 import com.example.iTravel.model.TravelGuide;
+import com.example.iTravel.model.User;
 import com.example.iTravel.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,4 +26,5 @@ public class UserController {
     public List<POI> getUserPOIs(@PathVariable String userId) {
         return userService.getUserPOIs(userId);
     }
+
 }
