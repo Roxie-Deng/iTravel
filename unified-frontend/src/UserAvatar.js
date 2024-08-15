@@ -24,7 +24,7 @@ const UserAvatar = () => {
       const token = localStorage.getItem('token');
       console.log("Using token: ", token);
 
-      const response = await fetch('http://localhost:8080/api/files/upload', {
+      const response = await fetch('http://localhost:8080/upload_avatar', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -38,7 +38,7 @@ const UserAvatar = () => {
 
       const fileId = await response.text();
 
-      const newAvatarUrl = `http://localhost:8080/api/files/download/${fileId}`;
+      const newAvatarUrl = `http://localhost:8080/download_avatar/${fileId}`;
       console.log('Avatar uploaded successfully. New URL:', newAvatarUrl);
       setAvatarPreview(newAvatarUrl);
       updateUser({ isLoggedIn: true, user: { ...user, avatarUrl: newAvatarUrl } }); // Update the user context with the new avatar URL
