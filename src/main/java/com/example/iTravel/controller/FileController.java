@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/")
 public class FileController {
 
     @Autowired
@@ -29,7 +29,7 @@ public class FileController {
     @Autowired
     private UserRepository userRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
     // 文件上传
     @PostMapping("/upload_avatar")
