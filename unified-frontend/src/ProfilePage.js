@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import UserAvatar from './UserAvatar';
@@ -9,8 +9,9 @@ import './ProfilePage.css';
 const ProfilePage = () => {
   const { user } = useAuth();
 
-  // 调试日志
-  console.log('User state:', user);
+  useEffect(() => {
+    console.log('ProfilePage user:', user); // 检查 user 对象是否正确传递
+  }, [user]);
 
   if (!user || !user.id) { // 确保 user 和 user.id 存在
     console.log('Navigating to login page due to missing user or user.id');

@@ -73,7 +73,7 @@ public class AuthController {
                 userDetails.getUsername(),
                 userDetails.getEmail(),
                 roles,
-                user.getAvatarUrl()));//添加头像URL
+                user.getAvatarUrl().toString()));//添加头像URL
     }
 
     @PostMapping("/signup")
@@ -135,7 +135,7 @@ public class AuthController {
                 userDetails.getAuthorities().stream()
                         .map(item -> item.getAuthority())
                         .collect(Collectors.toList()),
-                user.getAvatarUrl() // 包含用户的头像URL
+                user.getAvatarUrl().toString() // 包含用户的头像URL
         ));
     }
 

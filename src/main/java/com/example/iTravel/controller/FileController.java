@@ -4,6 +4,7 @@ import com.example.iTravel.model.User;
 import com.example.iTravel.repository.UserRepository;
 import com.example.iTravel.security.AuthEntryPointJwt;
 import com.example.iTravel.service.FileStorageService;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class FileController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Update user's avatar URL
-        user.setAvatarUrl(fileId);
+        user.setAvatarUrl((new ObjectId(fileId)));
         userRepository.save(user);
 
         logger.debug("User avatar URL updated: {}", fileId);

@@ -16,10 +16,15 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
     @Value("${spring.data.mongodb.uri}")
     private String mongoUri;
+    @Value("${spring.data.mongodb.database}")
+    private String databaseName;
 
     @Override
     protected String getDatabaseName() {
-        return "test"; // 从配置文件中读取，也可通过 @Value 注解来动态获取
+        if (databaseName == null || databaseName.isEmpty()) {
+            throw new IllegalArgumentException("Database name must be specified in the configuration file.");
+        }
+        return databaseName;
     }
 
     @Override
