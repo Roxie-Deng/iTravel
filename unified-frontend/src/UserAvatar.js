@@ -9,8 +9,9 @@ const UserAvatar = () => {
 
   useEffect(() => {
     if (user && user.avatarUrl) {
+      const avatarUrl = `http://localhost:8080/download_avatar/${user.avatarUrl}`;
       console.log('Setting avatar preview to:', user.avatarUrl);
-      setAvatarPreview(user.avatarUrl);
+      setAvatarPreview(avatarUrl);
     } else {
       setAvatarPreview(placeholderImage);
     }
@@ -41,7 +42,7 @@ const UserAvatar = () => {
       const newAvatarUrl = `http://localhost:8080/download_avatar/${fileId}`;
       console.log('Avatar uploaded successfully. New URL:', newAvatarUrl);
       setAvatarPreview(newAvatarUrl);
-      updateUser({ isLoggedIn: true, user: { ...user, avatarUrl: newAvatarUrl } }); // Update the user context with the new avatar URL
+      updateUser({ isLoggedIn: true, user: { ...user, avatarUrl: fileId } }); // Update the user context with the new avatar URL
       
       // Debug logs
       console.log('Avatar preview should be set to:', newAvatarUrl);

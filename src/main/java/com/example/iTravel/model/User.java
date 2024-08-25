@@ -1,6 +1,7 @@
 package com.example.iTravel.model;
 
 import lombok.Data;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -19,13 +20,13 @@ public class User {
     @DBRef
     private Set<Role> roles = new HashSet<>();
 
-    private String avatarUrl; // URL for external storage
+    private ObjectId avatarUrl; // 设置默认头像URL
 
-    // To create a new account (TODO:之后可能和下面的constructor合并，设置默认头像)
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.avatarUrl = new ObjectId("66aff6d2423ccb3b63661fd8");// 设置默认头像URL
     }
 
 }
