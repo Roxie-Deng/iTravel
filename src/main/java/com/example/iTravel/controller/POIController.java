@@ -4,6 +4,7 @@ import com.example.iTravel.model.POI;
 import com.example.iTravel.service.POIService;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,11 +19,15 @@ public class POIController {
     private POIService poiService;
 
     @PostMapping
-    public POI addPOI(@RequestBody POI poi, HttpServletRequest request) {
+    public ResponseEntity<?> addPOI(@RequestBody POI poi, HttpServletRequest request) {
         Claims claims = (Claims) request.getAttribute("claims");
+        if (claims == null) {
+            return ResponseEntity.status(401).body("User is not authenticated");
+        }
         String userId = claims.getSubject();
         poi.setUserId(userId);
-        return poiService.savePOI(poi);
+        POI savedPOI = poiService.savePOI(poi);
+        return ResponseEntity.ok(savedPOI);
     }
 
     @GetMapping("/user/{userId}")

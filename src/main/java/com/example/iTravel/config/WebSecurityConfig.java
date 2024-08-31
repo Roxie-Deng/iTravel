@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -89,9 +90,13 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/home", "/guide", "/preferences", "/recommendations", "/auth/**","/download_avatar/**").permitAll()//这些端点所有用户可以访问//显示头像应为公共端点
-                        .requestMatchers("/test/**","/upload_avatar").authenticated()//这些端点验证用户可以访问//上传头像应通过验证
-                        .anyRequest().permitAll()//未匹配上的其他请求所有用户可以访问
+                        // 公共端点 - 允许未登录用户查看 guides 列表
+                        .requestMatchers("/", "/home", "/guide", "/guides/**", "/preferences", "/recommendations", "/auth/**", "/download_avatar/**").permitAll()
+                        // 需要认证的端点 - 限制访问 POST 请求
+                        .requestMatchers(HttpMethod.POST, "/api/guides/guide").authenticated()
+                        .requestMatchers("/test/**", "/upload_avatar").authenticated()
+                        // 未匹配上的其他请求所有用户可以访问
+                        .anyRequest().permitAll()
                 );
 
         http.authenticationProvider(authenticationProvider());
@@ -100,4 +105,6 @@ public class WebSecurityConfig {
 
         return http.build();
     }
+
+
 }

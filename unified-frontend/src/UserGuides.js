@@ -7,11 +7,11 @@ const UserGuides = () => {
   const [guides, setGuides] = useState([]);
 
   useEffect(() => {
-    if (user && user.username) { // 使用 username 而非 id
+    if (user && user.id) { // 使用 user.id
       const fetchUserGuides = async () => {
         try {
-          console.log(`Fetching guides for user ID: ${user.username}`); // 打印调试信息
-          const response = await axios.get(`http://localhost:8080/api/guides/user/${user.username}`, {
+          console.log(`Fetching guides for user ID: ${user.id}`); // 打印调试信息
+          const response = await axios.get(`http://localhost:8080/api/guides/user/${user.id}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -26,6 +26,7 @@ const UserGuides = () => {
       fetchUserGuides();
     }
   }, [user]);
+
 
   return (
     <div className="section">

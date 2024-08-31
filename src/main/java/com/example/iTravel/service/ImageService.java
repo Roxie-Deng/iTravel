@@ -28,7 +28,7 @@ public class ImageService {
             json.put("query", query);
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://140.203.196.161:5000/get_image"))
+                    .uri(new URI("http://127.0.0.1:5000/get_image"))
                     .header("Content-Type", "application/json")
                     .POST(BodyPublishers.ofString(json.toString()))
                     .build();

@@ -3,7 +3,7 @@ import axios from 'axios';
 import localforage from 'localforage';
 import { parseRecommendations, parseContent } from './parser';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5000';
 
 localforage.config({
     driver: localforage.LOCALSTORAGE,
@@ -45,10 +45,9 @@ const generateCacheKey = (type, destination, bodyContent) => {
     return `${type}:${destination.toUpperCase()}:${JSON.stringify(bodyContent)}`;
 };
 
-const fetchImageUrl = async (query, setImageLoading) => {
-    setImageLoading(true);
+const fetchImageUrl = async (query) => {
     try {
-        const response = await fetch('http://localhost:5000/get_image', {
+        const response = await fetch(`${API_URL}/get_image`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -63,10 +62,10 @@ const fetchImageUrl = async (query, setImageLoading) => {
     } catch (error) {
         console.error('Error fetching image URL:', error);
         return 'https://via.placeholder.com/150';
-    } finally {
-        setImageLoading(false);
     }
 };
+
+
 
 const fetchContentFromBackend = async (destination, type, bodyContent, setLoading, setConversation, setRecommendations, setGuide) => {
     const cacheKey = generateCacheKey(type, destination, bodyContent);
@@ -86,6 +85,11 @@ const fetchContentFromBackend = async (destination, type, bodyContent, setLoadin
     try {
         const response = await api.post(`/api/kimi/${type}`, bodyContent);
         const data = response.data;
+
+
+        // 添加这行日志来查看原始内容
+        console.log("Raw content:", data.choices[0].message.content);
+
         console.log(`Fetched ${type} data:`, data);
 
         if (type === 'recommendations') {
@@ -113,20 +117,24 @@ const fetchContentFromBackend = async (destination, type, bodyContent, setLoadin
 
 const savePOI = async (poi) => {
     try {
+        console.log('Saving POI:', poi);
         const response = await api.post('/api/pois', poi);
+        console.log('POI save response:', response.data);
         return response.data;
     } catch (error) {
-        console.error('Failed to save POI:', error);
+        console.error('Failed to save POI:', error.response ? error.response.data : error.message);
         throw error;
     }
 };
 
 const saveGuide = async (guide) => {
     try {
-        const response = await api.post('/api/guides', guide);
+        console.log('Saving guide:', guide);
+        const response = await api.post('/api/guides/guide', guide);
+        console.log('Guide save response:', response.data);
         return response.data;
     } catch (error) {
-        console.error('Failed to save guide:', error);
+        console.error('Failed to save guide:', error.response ? error.response.data : error.message);
         throw error;
     }
 };

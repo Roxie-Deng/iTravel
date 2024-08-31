@@ -33,6 +33,8 @@ const RecommendationList = ({ recommendations, onFetchMoreRecommendations, onSav
         }
     };
 
+    console.log("Parsed recommendations:", recommendations);
+
 
     return (
         <div className="recommendation-list">

@@ -1,18 +1,12 @@
 import os
 from bing_image_downloader import downloader
 from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
-
-# Flask application for fetching and serving images.
-# This application provides two main functionalities:
-# 1. Endpoint '/get_image' accepts POST requests with a JSON payload containing 'query' parameter.
-#    It downloads an image related to the query using bing_image_downloader and returns the URL.
-# 2. Endpoint '/dataset/<path:filename>' serves the downloaded images from the 'dataset' directory.
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
-# 下载图片并返回图片URL
+# Download image and return image URL
 def fetch_image_urls(query, limit=1, output_dir='dataset'):
     output_dir = os.path.join(os.getcwd(), output_dir, query.replace(" ", "_"))
 
@@ -27,24 +21,43 @@ def fetch_image_urls(query, limit=1, output_dir='dataset'):
                 image_urls.append(os.path.join(root, file))
     return image_urls
 
-@app.route('/get_image', methods=['POST'])
+@app.route('/get_image', methods=['POST', 'OPTIONS'])
+@cross_origin(origins='http://localhost:3000')
 def get_image():
+    print(f"Received request: {request.method} {request.url}")
+    print(f"Headers: {request.headers}")
+
+    if request.method == "OPTIONS":
+        return {"msg": "OK"}, 200
+
     try:
         query = request.json['query']
         image_urls = fetch_image_urls(query, limit=1)
         if image_urls:
-            # 提供相对路径
+            # Provide relative path
             relative_path = os.path.relpath(image_urls[0], os.path.join(os.getcwd(), 'dataset'))
-            return jsonify({"image_url": f"http://localhost:5000/dataset/{relative_path.replace(os.sep, '/')}"})
+            return jsonify({"image_url": f"http://127.0.0.1:5000/dataset/{relative_path.replace(os.sep, '/')}"})
         else:
             return jsonify({"error": "No images found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# 新的路由来提供图片
+# New route to serve images
 @app.route('/dataset/<path:filename>')
 def serve_image(filename):
     return send_from_directory(os.path.join(os.getcwd(), 'dataset'), filename)
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response
+
+# Simple test route
+@app.route('/test', methods=['GET'])
+def test():
+    return jsonify({"message": "Server is running"}), 200
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)

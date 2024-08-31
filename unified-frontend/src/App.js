@@ -58,20 +58,29 @@ Be realistic, especially for one (or two)-day trip. Only include the itinerary d
   };
 
   const handleSubmit = async (destination, preferences) => {
+    setLoading(true); // 确保在开始加载时将 loading 设置为 true
     setCurrentDestination(destination);
     setPreferences(preferences);
     setConversation([]);
     const query = preferences.visit.join(', ');
-    await fetchContentFromBackend(destination.toUpperCase(), 'recommendations', {
-      model: 'kimi',
-      messages: [{
-        role: 'user',
-        content: `Recommend 3 points of interest in ${destination.toUpperCase()} for these categories: ${query}.`
-      }],
-      use_search: false,
-      stream: false
-    }, setLoading, setConversation, setRecommendations, setGuide);
+
+    try {
+      await fetchContentFromBackend(destination.toUpperCase(), 'recommendations', {
+        model: 'kimi',
+        messages: [{
+          role: 'user',
+          content: `Recommend 3 points of interest in ${destination.toUpperCase()} for these categories: ${query}.`
+        }],
+        use_search: false,
+        stream: false
+      }, setLoading, setConversation, setRecommendations, setGuide);
+    } catch (error) {
+      console.error('Failed to fetch recommendations:', error);
+    } finally {
+      setLoading(false); // 确保在请求完成后将 loading 设置为 false
+    }
   };
+
 
   const fetchMoreRecommendations = async () => {
     setLoading(true);
