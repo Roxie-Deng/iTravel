@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from './AuthContext';
+import axios from 'axios';
 import './PreferenceForm.css';
 
 const PreferenceForm = ({ onSubmit }) => {
     const location = useLocation();
     const { destination } = location.state || {};
     const navigate = useNavigate();
+    const { user } = useAuth();
     const categories = [
         'Natural landscapes',
         'Historical landmarks',
@@ -16,7 +19,8 @@ const PreferenceForm = ({ onSubmit }) => {
 
     useEffect(() => {
         console.log("Received destination:", destination);
-    }, [destination]);
+        console.log("User state:", user);
+    }, [destination,user]);
 
     const handleCheckboxChange = (position) => {
         const updatedCheckedState = checkedState.map((item, index) =>
