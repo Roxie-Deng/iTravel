@@ -13,7 +13,8 @@ const GuidePage = ({ guide }) => {
   useEffect(() => {
     console.log("Received destination:", destination);
     console.log("Guide data received:", guide);
-  }, [destination, guide]);
+    console.log("User state:", user); 
+  }, [destination, guide, user]);
 
   const handleSave = async () => {
     if (!user) {

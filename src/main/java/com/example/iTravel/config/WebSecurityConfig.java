@@ -91,7 +91,7 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 公共端点 - 允许未登录用户查看 guides 列表
-                        .requestMatchers("/", "/home", "/guide", "/guides/**", "/preferences", "/recommendations", "/auth/**", "/download_avatar/**").permitAll()
+                        .requestMatchers("/", "/home", "/guide", "/guides/**", "/preferences", "/recommendations", "/pois","/auth/**", "/download_avatar/**").permitAll()
                         // 需要认证的端点 - 限制访问 POST 请求
                         .requestMatchers(HttpMethod.POST, "/api/guides/guide").authenticated()
                         .requestMatchers("/test/**", "/upload_avatar").authenticated()
