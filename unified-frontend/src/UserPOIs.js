@@ -7,11 +7,11 @@ const UserPOIs = () => {
   const [pois, setPois] = useState([]);
 
   useEffect(() => {
-    if (user && user.username) { // 使用 username 而非 id
+    if (user && user.id) { // 使用 id 而非 username
       const fetchUserPOIs = async () => {
         try {
-          console.log(`Fetching POIs for user ID: ${user.username}`); // 打印调试信息
-          const response = await axios.get(`http://localhost:8080/api/pois/user/${user.username}`, {
+          console.log(`Fetching POIs for user ID: ${user.id}`); // 打印调试信息
+          const response = await axios.get(`http://localhost:8080/api/pois/user/${user.id}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -26,6 +26,7 @@ const UserPOIs = () => {
       fetchUserPOIs();
     }
   }, [user]);
+
 
   return (
     <div className="section">
