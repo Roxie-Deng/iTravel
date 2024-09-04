@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
+import './ProfilePage.css';  // 继续使用 ProfilePage.css
 
 const UserGuides = () => {
   const { user } = useAuth();
@@ -16,7 +17,7 @@ const UserGuides = () => {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
           });
-          setGuides(response.data);
+          setGuides(response.data); // 保存获取到的数据
           console.log('Guides fetched successfully:', response.data);
         } catch (error) {
           console.error('Failed to fetch guides:', error);
@@ -27,16 +28,50 @@ const UserGuides = () => {
     }
   }, [user]);
 
+  // Helper function: Capitalize the first letter of the destination
+  const capitalizeDestination = (destination) => {
+    if (!destination) return "";
+    return destination.charAt(0).toUpperCase() + destination.slice(1).toLowerCase();
+  };
+
+  // 渲染 guide 中的活动
+  const renderGuideActivities = (activities) => {
+    return activities.map((activity, index) => (
+      <li key={index}>
+        <strong>{activity.time}</strong>: {activity.description}
+      </li>
+    ));
+  };
+
+  // 渲染每个 day
+  const renderGuideDays = (guide) => {
+    try {
+      const parsedGuide = JSON.parse(guide); // 将 guide 字符串解析为对象
+      return parsedGuide.map((day, index) => (
+        <div key={index} className="guide-day">
+          <h4>{day.day}</h4>
+          <ul>
+            {renderGuideActivities(day.activities)}
+          </ul>
+        </div>
+      ));
+    } catch (error) {
+      console.error("Failed to parse guide:", error);
+      return <p>Invalid guide format.</p>;
+    }
+  };
 
   return (
     <div className="section">
-      <h2>My Guides</h2>
       <div className="items-container">
         {guides.length > 0 ? (
           guides.map(guide => (
-            <div key={guide.id} className="item">
-              <h3>{guide.destination}</h3>
-              <p>{guide.guide}</p>
+            <div key={guide.id} className="item-card">  {/* 使用 item-card 进行卡片布局 */}
+              <h3>{capitalizeDestination(guide.destination)}</h3> {/* 调用 capitalizeDestination 函数 */}
+              <p>{guide.description}</p>
+              <div className="item-content">
+                {renderGuideDays(guide.guide)}
+              </div>
             </div>
           ))
         ) : (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
+import './ProfilePage.css'; // 引入新的样式文件
 
 const UserPOIs = () => {
   const { user } = useAuth();
@@ -27,23 +28,21 @@ const UserPOIs = () => {
     }
   }, [user]);
 
-
   return (
-    <div className="section">
-      <h2>My POIs</h2>
-      <div className="items-container">
-        {pois.length > 0 ? (
-          pois.map(poi => (
-            <div key={poi.id} className="item">
+    <div className="items-container">
+      {pois.length > 0 ? (
+        pois.map(poi => (
+          <div key={poi.id} className="item-card"> {/* 使用 item-card 类创建卡片布局 */}
+            <img src={poi.imageUrl} alt={poi.name} className="poi-image" /> {/* 调整图片大小 */}
+            <div className="item-content">
               <h3>{poi.name}</h3>
               <p>{poi.description}</p>
-              <img src={poi.imageUrl} alt={poi.name} />
             </div>
-          ))
-        ) : (
-          <p>No POIs found.</p>
-        )}
-      </div>
+          </div>
+        ))
+      ) : (
+        <p>No POIs found.</p>
+      )}
     </div>
   );
 };

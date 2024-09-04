@@ -24,8 +24,17 @@ const ProfilePage = () => {
         <UserAvatar />
         <Link to="/edit-profile">Edit Profile</Link>
       </div>
-      <UserGuides />
-      <UserPOIs />
+      {/* Guides Section */}
+      <section className="guides-section">
+        <h2>My Guides</h2>
+        <UserGuides />
+      </section>
+
+      {/* POIs Section */}
+      <section className="pois-section">
+        <h2>My POIs</h2>
+        <UserPOIs />
+      </section>
     </div>
   );
 };
