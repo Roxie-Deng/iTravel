@@ -3,7 +3,7 @@ import axios from 'axios';
 import localforage from 'localforage';
 import { parseRecommendations, parseContent } from './parser';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5000';
+const API_URL = process.env.REACT_APP_API_URL ;
 
 localforage.config({
     driver: localforage.LOCALSTORAGE,
@@ -47,7 +47,7 @@ const generateCacheKey = (type, destination, bodyContent) => {
 
 const fetchImageUrl = async (query) => {
     try {
-        const response = await fetch(`${API_URL}/get_image`, {
+        const response = await fetch(`http://localhost:5000/get_image`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
