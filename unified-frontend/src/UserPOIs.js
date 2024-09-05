@@ -28,6 +28,32 @@ const UserPOIs = () => {
     }
   }, [user]);
 
+  // Handle delete POI
+  const handleDeletePOI = async (poiId) => {
+    // Show a confirmation dialog before deleting
+    const isConfirmed = window.confirm('Are you sure you want to delete this POI?');
+    if (!isConfirmed) {
+      return; // If the user cancels, exit the function
+    }
+
+    try {
+      // Send delete request to the server
+      const response = await axios.delete(`http://localhost:8080/api/pois/delete/${poiId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      // If successful, update the POIs state to remove the deleted POI
+      if (response.status === 200) {
+        setPois((prevPois) => prevPois.filter((poi) => poi.id !== poiId));
+        console.log('POI deleted successfully:', poiId);
+      }
+    } catch (error) {
+      console.error('Failed to delete POI:', error);
+    }
+  };
+
   return (
     <div className="items-container">
       {pois.length > 0 ? (
@@ -37,6 +63,7 @@ const UserPOIs = () => {
             <div className="item-content">
               <h3>{poi.name}</h3>
               <p>{poi.description}</p>
+              <button onClick={() => handleDeletePOI(poi.id)} className="delete-button">Delete</button>
             </div>
           </div>
         ))

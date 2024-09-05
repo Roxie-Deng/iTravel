@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import org.bson.types.ObjectId;
 
 @RestController
 @RequestMapping("/api/guides")
@@ -19,6 +20,16 @@ public class TravelGuideController {
 
     @Autowired
     private TravelGuideService travelGuideService;
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteTravelGuide(@PathVariable String id) {
+        boolean isDeleted = travelGuideService.deleteTravelGuideById(id);
+        if (isDeleted) {
+            return ResponseEntity.ok("Travel Guide deleted successfully");
+        } else {
+            return ResponseEntity.status(404).body("Travel Guide not found or invalid ID format");
+        }
+    }
 
     @PostMapping("/guide")
     public ResponseEntity<?> saveGuide(@RequestBody TravelGuide guide, HttpServletRequest request) {

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import org.bson.types.ObjectId;
 
 @RestController
 @RequestMapping("/api/pois")
@@ -20,6 +21,16 @@ public class POIController {
 
     @Autowired
     private POIService poiService;
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deletePOI(@PathVariable String id) {
+        boolean isDeleted = poiService.deletePOIById(id);
+        if (isDeleted) {
+            return ResponseEntity.ok("POI deleted successfully");
+        } else {
+            return ResponseEntity.status(404).body("POI not found or invalid ID format");
+        }
+    }
 
     @PostMapping("/save")
     public ResponseEntity<?> addPOI(@RequestBody POI poi, HttpServletRequest request) {
