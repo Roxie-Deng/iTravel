@@ -28,6 +28,31 @@ const UserGuides = () => {
     }
   }, [user]);
 
+  // Handle delete guide
+  const handleDeleteGuide = async (guideId) => {
+    const isConfirmed = window.confirm('Are you sure you want to delete this guide?');
+    if (!isConfirmed) {
+      return; // Exit if the user cancels
+    }
+
+    try {
+      // Send delete request to the server
+      const response = await axios.delete(`http://localhost:8080/api/guides/delete/${guideId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      // If successful, remove the deleted guide from the state
+      if (response.status === 200) {
+        setGuides((prevGuides) => prevGuides.filter((guide) => guide.id !== guideId));
+        console.log('Guide deleted successfully:', guideId);
+      }
+    } catch (error) {
+      console.error('Failed to delete guide:', error);
+    }
+  };
+
   // Helper function: Capitalize the first letter of the destination
   const capitalizeDestination = (destination) => {
     if (!destination) return "";
@@ -72,6 +97,7 @@ const UserGuides = () => {
               <div className="item-content">
                 {renderGuideDays(guide.guide)}
               </div>
+              <button onClick={() => handleDeleteGuide(guide.id)} className="delete-button">Delete</button>
             </div>
           ))
         ) : (
