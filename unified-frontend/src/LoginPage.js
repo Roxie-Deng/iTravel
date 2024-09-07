@@ -12,12 +12,28 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');  // 重置错误状态
     try {
       await login(username, password);
-      // 重定向到首页
+      // 登录成功后重定向到首页
       navigate('/');
     } catch (error) {
-      setError(error.response?.data?.message || 'Login failed');
+      // 捕获错误响应
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data.message || 'Login failed';
+
+        // 根据状态码显示不同的错误消息
+        if (status === 401) {
+          setError('Incorrect password. Please try again.');
+        } else if (status === 404) {
+          setError('User not found. Please check your username.');
+        } else {
+          setError(message);
+        }
+      } else {
+        setError('An error occurred. Please try again later.');
+      }
     }
   };
 
