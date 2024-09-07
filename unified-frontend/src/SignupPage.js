@@ -7,6 +7,7 @@ const SignupPage = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(''); // 添加确认密码状态
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { register, login } = useAuth();
@@ -23,6 +24,11 @@ const SignupPage = () => {
       setError('Password must be between 6 and 40 characters');
       return;
     }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }    
 
     try {
       console.log('Attempting to register with:', { username, email, password });
@@ -75,6 +81,19 @@ const SignupPage = () => {
             placeholder="6-40 characters"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            pattern=".{6,40}"
+            title="Password must be between 6 and 40 characters"
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="confirm-password">Confirm Password</label> {/* 新增确认密码输入框 */}
+          <input
+            type="password"
+            id="confirm-password"
+            placeholder="Re-enter password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             pattern=".{6,40}"
             title="Password must be between 6 and 40 characters"
             required
