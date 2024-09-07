@@ -20,21 +20,54 @@ const ProfilePage = () => {
 
   return (
     <div className="profile-container">
-      <div className="user-profile">
-        <UserAvatar />
-        <Link to="/edit-profile">Edit Profile</Link>
+      {/* Sidebar Navigation */}
+      <div className="offcanvas offcanvas-start" style={{ width: '200px', backgroundColor: 'black', color: 'white' }} tabindex="-1" id="offcanvas" data-bs-keyboard="false" data-bs-backdrop="false">
+        <div className="offcanvas-header">
+          <h6 className="offcanvas-title" id="offcanvasLabel">Menu</h6>
+          <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div className="offcanvas-body px-0">
+          <ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-start" id="menu">
+            <li className="nav-item">
+              <a href="#guides" className="nav-link text-truncate">
+                <i className="bi bi-compass"></i><span className="ms-1 d-none d-sm-inline">My Guides</span>
+              </a>
+            </li>
+            <li className="nav-item">
+              <a href="#pois" className="nav-link text-truncate">
+                <i className="bi bi-geo-alt-fill"></i><span className="ms-1 d-none d-sm-inline">My POIs</span>
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
-      {/* Guides Section */}
-      <section className="guides-section">
-        <h2>My Guides</h2>
-        <UserGuides />
-      </section>
 
-      {/* POIs Section */}
-      <section className="pois-section">
-        <h2>My POIs</h2>
-        <UserPOIs />
-      </section>
+      {/* Profile Content */}
+      <div className="content-container">
+        <div className="user-profile">
+          <UserAvatar />
+        </div>
+        <div className="profile-container">
+          <Link to="/edit-profile">Edit Profile</Link>
+        </div>
+
+        {/* My Guides Section */}
+        <section id="guides">
+          <h2 className="section-title">🧭My Guides</h2>
+          <UserGuides />
+        </section>
+
+        {/* My Saved POIs Section */}
+        <section id="pois">
+          <h2 className="section-title">📍My POIs</h2>
+          <UserPOIs />
+        </section>
+      </div>
+
+      {/* Button to open sidebar */}
+      <button className="btn open-sidebar-btn" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" role="button">
+        <i className="bi bi-arrow-right-square-fill fs-3"></i>
+      </button>
     </div>
   );
 };

@@ -13,6 +13,11 @@ import SignupPage from './SignupPage';
 import ProfilePage from './ProfilePage';
 import ForgetPage from './ForgetPage';
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
+
 
 // 修改: 更新 ProtectedRoute 组件以处理 loading 状态
 const ProtectedRoute = ({ children }) => {

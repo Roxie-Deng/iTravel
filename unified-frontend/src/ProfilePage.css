@@ -18,6 +18,17 @@ section {
   margin-bottom: 40px;
 }
 
+.section-title {
+  background-color: black;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  display: inline-block;
+  width: 320px;
+  text-align: center;
+}
+
+
 .items-container {
   display: flex;
   flex-wrap: wrap;
@@ -105,4 +116,48 @@ p {
 .item-content {
   text-align: left;
   /* 左对齐内容 */
+}
+
+/* Fixed sidebar button at the top, below the navbar */
+.open-sidebar-btn {
+  position: fixed;
+  top: 70px;
+  /* Adjust this value based on your navbar height */
+  right: 20px;
+  /* Distance from the right edge */
+  z-index: 1000;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  padding: 10px;
+}
+
+.open-sidebar-btn:hover {
+  background-color: #0056b3;
+}
+
+
+
+/* 侧边栏的整体样式 */
+.offcanvas-body .nav-link {
+  color: white;
+  /* 将导航栏字体颜色设置为黑色 */
+  font-weight: normal;
+  /* 正常字体 */
+}
+
+.offcanvas-body .nav-link:hover {
+  color: #007bff;
+  /* 悬停时改变颜色 */
+}
+
+/* 将 Menu 设为粗体 */
+.offcanvas-header .offcanvas-title {
+  font-weight: bold;
+  /* 设置粗体 */
+  font-size: 18px;
+  /* 可以调整字体大小 */
+  color: white;
+  /* 设置为黑色 */
 }
