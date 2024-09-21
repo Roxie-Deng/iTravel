@@ -43,11 +43,11 @@ const UserAvatar = () => {
       console.log('Avatar uploaded successfully. New URL:', newAvatarUrl);
       setAvatarPreview(newAvatarUrl);
       updateUser({ isLoggedIn: true, user: { ...user, avatarUrl: fileId } }); // Update the user context with the new avatar URL
-      
+
       // Debug logs
       console.log('Avatar preview should be set to:', newAvatarUrl);
       console.log('User context after upload:', user);
-      
+
       alert('File uploaded successfully: ' + fileId);
     } catch (error) {
       console.error('Error uploading file: ', error);

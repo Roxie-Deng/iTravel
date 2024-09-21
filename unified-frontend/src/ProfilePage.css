@@ -1,163 +1,163 @@
 .profile-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
 }
 
 .user-profile {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 section {
-  width: 100%;
-  max-width: 1200px;
-  /* 控制最大宽度 */
-  text-align: center;
-  /* 水平居中标题 */
-  margin-bottom: 40px;
+    width: 100%;
+    max-width: 1200px;
+    /* 控制最大宽度 */
+    text-align: center;
+    /* 水平居中标题 */
+    margin-bottom: 40px;
 }
 
 .section-title {
-  background-color: black;
-  color: white;
-  padding: 10px;
-  border-radius: 5px;
-  display: inline-block;
-  width: 320px;
-  text-align: center;
+    background-color: black;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+    width: 320px;
+    text-align: center;
 }
 
 
 .items-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  /* 使卡片内容居中 */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    /* 使卡片内容居中 */
 }
 
 .item-card {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  margin: 10px;
-  width: 300px;
-  text-align: center;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: 10px;
+    width: 300px;
+    text-align: center;
 }
 
 .poi-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-bottom: 1px solid #ddd;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid #ddd;
 }
 
 .item-content {
-  padding: 15px;
+    padding: 15px;
 }
 
 h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
+    font-size: 24px;
+    margin-bottom: 10px;
 }
 
 h3 {
-  font-size: 20px;
+    font-size: 20px;
 }
 
 p {
-  font-size: 16px;
-  color: #666;
+    font-size: 16px;
+    color: #666;
 }
 
 .change-button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
 }
 
 .change-button:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 .guide-day {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 
 .guide-day h4 {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .guide-day ul {
-  list-style-type: none;
-  padding-left: 0;
+    list-style-type: none;
+    padding-left: 0;
 }
 
 .guide-day li {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .item-card {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  margin: 10px;
-  width: 300px;
-  text-align: center;
-  padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: 10px;
+    width: 300px;
+    text-align: center;
+    padding: 20px;
 }
 
 .item-content {
-  text-align: left;
-  /* 左对齐内容 */
+    text-align: left;
+    /* 左对齐内容 */
 }
 
 /* Fixed sidebar button at the top, below the navbar */
 .open-sidebar-btn {
-  position: fixed;
-  top: 70px;
-  /* Adjust this value based on your navbar height */
-  right: 20px;
-  /* Distance from the right edge */
-  z-index: 1000;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  padding: 10px;
+    position: fixed;
+    top: 70px;
+    /* Adjust this value based on your navbar height */
+    right: 20px;
+    /* Distance from the right edge */
+    z-index: 1000;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    padding: 10px;
 }
 
 .open-sidebar-btn:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 
 
 /* 侧边栏的整体样式 */
 .offcanvas-body .nav-link {
-  color: white;
-  /* 将导航栏字体颜色设置为黑色 */
-  font-weight: normal;
-  /* 正常字体 */
+    color: white;
+    /* 将导航栏字体颜色设置为黑色 */
+    font-weight: normal;
+    /* 正常字体 */
 }
 
 .offcanvas-body .nav-link:hover {
-  color: #007bff;
-  /* 悬停时改变颜色 */
+    color: #007bff;
+    /* 悬停时改变颜色 */
 }
 
 /* 将 Menu 设为粗体 */
 .offcanvas-header .offcanvas-title {
-  font-weight: bold;
-  /* 设置粗体 */
-  font-size: 18px;
-  /* 可以调整字体大小 */
-  color: white;
-  /* 设置为黑色 */
+    font-weight: bold;
+    /* 设置粗体 */
+    font-size: 18px;
+    /* 可以调整字体大小 */
+    color: white;
+    /* 设置为黑色 */
 }

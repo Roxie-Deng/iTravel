@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import './GuidePage.css';
 import axios from 'axios';
 
 const GuidePage = ({ guide }) => {
@@ -13,7 +12,7 @@ const GuidePage = ({ guide }) => {
   useEffect(() => {
     console.log("Received destination:", destination);
     console.log("Guide data received:", guide);
-    console.log("User state:", user); 
+    console.log("User state:", user);
   }, [destination, guide, user]);
 
   const handleSave = async () => {
@@ -50,31 +49,41 @@ const GuidePage = ({ guide }) => {
     }
   };
 
-
   return (
-    <div className="guide-page">
+    <div className="p-5 text-center">
       {guide.length > 0 ? (
         <div>
           {guide.map((day, index) => (
-            <div key={index} className="guide-card">
-              <h2>{day.day}</h2>
-              <div className="guide-content">
+            <div key={index} className="guide-card bg-gray-100 border border-gray-300 rounded-lg shadow-md my-5 mx-auto p-5 max-w-xl text-left">
+              <h2 className="text-2xl font-bold mb-3">{day.day}</h2>
+              <div className="guide-content mb-5">
                 {day.activities.map((activity, idx) => (
-                  <div key={idx}>
-                    <h3>{activity.time}</h3>
-                    <p>{activity.description}</p>
+                  <div key={idx} className="mb-4">
+                    <h3 className="text-lg font-bold">{activity.time}</h3>
+                    <p className="text-left">{activity.description}</p>
                   </div>
                 ))}
               </div>
             </div>
           ))}
-          <button className="save-button" onClick={handleSave}>Save</button>
-          {user && savedMessage && <p className="success-message">{savedMessage}</p>}
+          <button
+            className="save-button bg-blue-500 text-white font-semibold py-2 px-4 rounded w-32 mx-auto mt-4 hover:bg-blue-700"
+            onClick={handleSave}
+          >
+            Save
+          </button>
+          {user && savedMessage && <p className="save-message text-green-500 font-semibold mt-2">{savedMessage}</p>}
         </div>
       ) : (
-        <p>No guide available. Please return home and submit a destination.</p>
+        <p className="text-lg font-semibold mt-4">No guide available. Please return home and submit a destination.</p>
       )}
-      <Link to="/preferences" state={{ destination }}>Recommend Attractions and Activities</Link>
+      <Link
+        to="/preferences"
+        state={{ destination }}
+        className="recommend-link block mt-6 text-blue-500 text-lg hover:underline"
+      >
+        Recommend Attractions and Activities
+      </Link>
     </div>
   );
 };

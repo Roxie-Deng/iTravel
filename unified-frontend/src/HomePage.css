@@ -1,34 +1,91 @@
+/* Main container setup */
 .homepage-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  padding: 20px;
+  padding: 0;
+  height: calc(100vh - 50px);
+  /* 高度减去导航栏高度，防止滚动条 */
+  background-color: white;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-.homepage-title {
-  font-size: 2.5em;
-  color: #333;
-  margin-bottom: 20px;
+/* 背景图片的容器 */
+.hero-section {
+  position: relative;
+  width: 98%;
+  /* 容器宽度接近视口宽度 */
+  max-width: 100%;
+  /* 容器最大宽度为100% */
+  height: 95%;
+  /* 保证上下间距一致 */
+  /* background-image: url('https://i.imgur.com/UcpWWus.jpeg'); */
+  background-image: url('https://i.imgur.com/ORsK9fT.jpeg');
+  background-size: cover;
+  /* 背景图片覆盖容器 */
+  background-position: bottom;
+  /* 确保图片底部优先显示 */
+  border-radius: 15px;
+  border: 5px solid white;
+  /* 白色边框 */
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 标题和表单布局 */
+.hero-title,
+.hero-subtitle,
+.homepage-form {
+  position: relative;
+  z-index: 2;
+  text-align: left;
+  width: 60%;
+
+  /* 使标题、副标题和表单占据图片的一半 */
+}
+
+.hero-title {
+  font-family: Raleway;
+  font-size: 5em;
+  /* 增大字体尺寸 */
+  color: white;
+  margin: 0;
+  padding: 30px 0 10px 30px;
+  margin-left: 30px;
+}
+
+.hero-subtitle {
+  font-family: Nunito;
+  font-size: 2em;
+  /* 增大副标题的字体尺寸 */
+  color: white;
+  margin-top: 10px;
+  padding-left: 30px;
+  margin-left: 30px;
 }
 
 .homepage-form {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 400px;
+  align-items: flex-start;
+  margin-top: 20px;
+  margin-left: 30px;
+  padding-left: 30px;
 }
 
 .homepage-form-group {
-  width: 100%;
-  margin-bottom: 15px;
+  width: 350px;
+  margin-bottom: 10px;
+  /* 适当增大输入框之间的间距 */
 }
 
-.homepage-input, .homepage-select {
+.homepage-input,
+.homepage-select {
   width: 100%;
   padding: 10px;
+  /* 保持输入框的大小 */
   font-size: 1.2em;
   border: 2px solid #ccc;
   border-radius: 5px;
@@ -36,17 +93,18 @@
 }
 
 .homepage-button {
-  width: 100%;
-  padding: 10px 20px;
-  font-size: 1.2em;
+  font-family: Montserrat;
+  padding: 15px 30px;
+  /* 增大按钮的填充 */
+  font-size: 1.5em;
+  /* 增大按钮字体 */
+  background-color: black;
   color: white;
-  background-color: #007bff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  box-sizing: border-box;
 }
 
 .homepage-button:hover {
-  background-color: #0056b3;
+  background-color: gray;
 }

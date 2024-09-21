@@ -63,7 +63,7 @@ const UserPOIs = () => {
             <div className="item-content">
               <h3>{poi.name}</h3>
               <p>{poi.description}</p>
-              <button onClick={() => handleDeletePOI(poi.id)} className="delete-button">Delete</button>
+              <button onClick={() => handleDeletePOI(poi.id)} className="bg-black-500 text-white py-2 px-4 rounded hover:bg-black-700">Delete</button>
             </div>
           </div>
         ))

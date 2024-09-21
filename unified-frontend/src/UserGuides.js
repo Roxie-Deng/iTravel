@@ -97,7 +97,7 @@ const UserGuides = () => {
               <div className="item-content">
                 {renderGuideDays(guide.guide)}
               </div>
-              <button onClick={() => handleDeleteGuide(guide.id)} className="delete-button">Delete</button>
+              <button onClick={() => handleDeleteGuide(guide.id)} className="bg-black-500 text-white py-2 px-4 rounded hover:bg-black-700">Delete</button>
             </div>
           ))
         ) : (
