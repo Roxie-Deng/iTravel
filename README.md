@@ -1,10 +1,10 @@
 iTravel 1.0 Version, capable of generating travel itineraries based on user-entered destinations and recommending attractions based on a user-completed interest questionnaire. It features a decoupled architecture using React for the frontend and Spring Boot along with the kimi API for backend services.
 
-## 👥Collatoration   
+## 👥Collatoration     
 This project was developed collaboratively with [@Aria](https://github.com/Levoyage). The original repository was folked to maintain version safety, and experiment with new features without affecting the main repository. The final development output can be found here: https://github.com/Levoyage/iTravel
 ![image](https://github.com/user-attachments/assets/3e3ad5bc-63ee-497f-971f-89e78117852a)
 
-
+## 📌Preview
 Please click the link to view👉
 http://i-travel-app.s3-website-us-east-1.amazonaws.com/
 
