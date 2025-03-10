@@ -19,3 +19,7 @@ http://i-travel-app.s3-website-us-east-1.amazonaws.com/
 ![Preference form page preview](https://i.imgur.com/I2ZLMyQ.png)
 5. Recommendation list page
 ![Recommendation list page preview](https://i.imgur.com/pdi43is.jpeg)
+
+## 📖 API Documentation  
+The backend provides RESTful APIs for handling AI-content generation and user profile management.
+ **For full API details, refer to** [API Docs](./api-docs.md).
