@@ -22,4 +22,4 @@ http://i-travel-app.s3-website-us-east-1.amazonaws.com/
 
 ## 📖 API Documentation  
 The backend provides RESTful APIs for handling AI-content generation and user profile management.
- **For full API details, refer to** [API Docs](./api-docs.md).
+ **For full API details, refer to** [API Docs](./api-docs).
